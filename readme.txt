@@ -18,6 +18,8 @@ Everything before the marker stays visible. Everything after it collapses behind
 
 There is no settings screen. That's not a missing feature — it's the point. A settings screen is a promise that something might go wrong without it, and one more surface that has to keep working across every WordPress version forever. This plugin does one job, the same way for everyone: install it, activate it, type a shortcode. No options to learn, no options to migrate when you update, nothing to configure wrong.
 
+This is built for the site owner who wants things to simply work — not for anyone looking to spend an afternoon in a settings panel. If that's you, there's genuinely nothing more to learn than what's already on this page.
+
 = What "lightweight" actually means here =
 
 No database writes. No admin page. No external requests. No JavaScript library, no build step, no dependencies of any kind. The plugin does not create an options row, a database table, a cron event, or a single byte of stored data — activating it is the entire installation, and deactivating it leaves nothing behind.

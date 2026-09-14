@@ -177,15 +177,7 @@
 		color: var(--flare-deep);
 		cursor: pointer;
 	}
-	.proof-toggle::before {
-		content: '';
-		width: 10px;
-		height: 2px;
-		background: var(--flare-deep);
-		display: inline-block;
-	}
 	.proof-toggle:hover { color: var(--ink); }
-	.proof-toggle:hover::before { background: var(--ink); }
 	.proof-toggle[hidden] { display: none; }
 	.proof-collapse {
 		display: grid;
@@ -195,49 +187,64 @@
 	.proof-collapse.open { grid-template-rows: 1fr; }
 	.proof-collapse-inner { overflow: hidden; min-height: 0; }
 
-	/* ---------- Three steps: the entire onboarding, stated as fact ---------- */
+	/* ---------- Three steps: the entire onboarding, stated as fact.
+	   This is the one place the page is allowed to raise its voice —
+	   everything after "why there's no settings screen" stays quiet. ---------- */
 
-	.steps { padding: 0 0 3.2rem; }
+	.steps { padding: 0.4rem 0 3.6rem; }
+	.steps .strike { width: 56px; height: 5px; }
 	.steps-head {
 		font-family: 'DM Sans', sans-serif;
-		font-weight: 700;
+		font-weight: 800;
 		text-transform: uppercase;
-		letter-spacing: 0.02em;
-		font-size: 0.95rem;
+		letter-spacing: -0.01em;
+		font-size: 1.3rem;
 		color: var(--ink);
-		margin: 0 0 1.6rem;
+		margin: 0 0 2.2rem;
 	}
 	.step-list { list-style: none; margin: 0; padding: 0; }
 	.step {
 		display: grid;
-		grid-template-columns: 2.6rem 1fr;
-		gap: 1rem;
-		padding: 1.1rem 0;
+		grid-template-columns: 4.4rem 1fr;
+		align-items: start;
+		gap: 1.4rem;
+		padding: 1.7rem 0;
 		border-top: 1px solid var(--ink-12);
 	}
 	.step:last-child { border-bottom: 1px solid var(--ink-12); }
 	.step-num {
+		width: 4.4rem;
+		height: 4.4rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--ink);
+		border-radius: 8px;
 		font-family: 'IBM Plex Mono', monospace;
-		font-size: 1.3rem;
-		color: var(--flare-deep);
-		line-height: 1.5;
+		font-weight: 500;
+		font-size: 1.7rem;
+		color: var(--paper);
+		line-height: 1;
 	}
+	.step-body { padding-top: 0.3rem; }
 	.step-body h3 {
 		font-family: 'DM Sans', sans-serif;
-		font-weight: 700;
-		font-size: 1.02rem;
+		font-weight: 800;
+		text-transform: uppercase;
+		letter-spacing: -0.01em;
+		font-size: 1.2rem;
 		color: var(--ink);
-		margin: 0 0 0.3rem;
+		margin: 0 0 0.4rem;
 	}
-	.step-body p { margin: 0; font-size: 0.97rem; }
-	.step-body pre { margin-top: 0.7rem; }
+	.step-body p { margin: 0; font-size: 1.02rem; }
+	.step-body pre { margin-top: 0.9rem; }
 
 	.done-line {
-		margin: 1.6rem 0 0;
+		margin: 2rem 0 0;
 		font-family: 'DM Sans', sans-serif;
 		font-weight: 700;
 		color: var(--ink);
-		font-size: 1.05rem;
+		font-size: 1.1rem;
 	}
 	.done-line span { color: var(--flare-deep); }
 
@@ -352,7 +359,8 @@
 
 	@media (max-width: 560px) {
 		.intro { padding-top: 2.2rem; }
-		.step { grid-template-columns: 2rem 1fr; }
+		.step { grid-template-columns: 3.4rem 1fr; gap: 1rem; }
+		.step-num { width: 3.4rem; height: 3.4rem; font-size: 1.3rem; }
 		.detail-body { padding-left: 1.2rem; }
 	}
 
@@ -402,6 +410,7 @@
 
 <section class="steps">
 	<div class="wrap">
+		<div class="strike"></div>
 		<p class="steps-head">Getting there takes three steps</p>
 		<ol class="step-list">
 			<li class="step">
@@ -438,6 +447,7 @@
 		<p>Most plugins in this category ship an options panel: pick your colors, pick your animation, pick your breakpoints. That's not an oversight here — it was left out on purpose.</p>
 		<p>A settings screen is a promise that something might go wrong without it, and a maintenance surface that has to keep working across every WordPress and PHP version forever. This plugin does one job — split content at a marker, reveal it on click — and does it the same way for everyone. The one thing worth controlling, the wording of the two links, is still changeable; it just lives in a filter instead of a screen, so updating the plugin can never quietly reset it.</p>
 		<p>Lightweight isn't the marketing description. It's the actual mechanism: no database writes, no admin page to render, no options to migrate between versions. Activate it and it is already doing its job.</p>
+		<p>None of this is aimed at power users who want every dial available. It's built for the site owner who just wants the thing to work — no configuration headache, no screen to figure out, no way to set it up wrong.</p>
 	</div>
 </section>
 

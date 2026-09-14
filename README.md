@@ -2,6 +2,8 @@
 
 A WordPress plugin that splits any content into a visible part and a collapsible "Read More / Read Less" part, using a single shortcode. No settings screen, no database writes, no dependencies, no external requests — that's a description of the mechanism, not a marketing line. There is genuinely nothing else to configure.
 
+Built for the site owner who wants it to just work: install, activate, type a shortcode. No configuration headache, because there's no configuration.
+
 > The canonical, user-facing documentation is [`readme.txt`](readme.txt), which is what renders on WordPress.org. This file covers the repository itself.
 
 ## How it works
