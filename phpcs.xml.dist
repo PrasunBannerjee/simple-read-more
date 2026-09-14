@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<ruleset name="Simple Read More">
+	<description>WordPress Coding Standards for the Simple Read More plugin.</description>
+
+	<file>.</file>
+
+	<exclude-pattern>/vendor/*</exclude-pattern>
+	<exclude-pattern>/node_modules/*</exclude-pattern>
+	<exclude-pattern>/build/*</exclude-pattern>
+	<exclude-pattern>/dist/*</exclude-pattern>
+	<exclude-pattern>/docs/*</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+	<arg name="colors"/>
+	<arg name="basepath" value="."/>
+	<arg value="ps"/>
+	<arg name="parallel" value="8"/>
+
+	<rule ref="WordPress">
+		<!-- The plugin ships no settings screen and reads no request
+		     data, so the nonce sniffs have nothing to check here. -->
+		<exclude name="WordPress.Security.NonceVerification"/>
+	</rule>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="simple-read-more"/>
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="simple_read_more"/>
+				<element value="SIMPLE_READ_MORE"/>
+				<element value="Simple_Read_More"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Match the minimum supported versions declared in the plugin header. -->
+	<config name="minimum_wp_version" value="5.8"/>
+	<config name="testVersion" value="7.2-"/>
+	<rule ref="PHPCompatibilityWP"/>
+</ruleset>

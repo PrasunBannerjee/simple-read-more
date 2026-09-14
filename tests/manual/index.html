@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Simple Read More — DOM behaviour tests</title>
+<link rel="stylesheet" href="../../assets/css/simple-read-more.css">
+<style>
+	body { font: 16px/1.6 system-ui, sans-serif; max-width: 780px; margin: 2rem auto; padding: 0 1rem; }
+	.case { border: 1px solid #ccc; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+	.case > h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: .08em; color: #777; margin: 0 0 .75rem; }
+	#results { position: sticky; top: 0; background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; font: 13px/1.5 monospace; white-space: pre-wrap; }
+	.pass { color: #6f6; } .fail { color: #f66; }
+	table { border-collapse: collapse; } td, th { border: 1px solid #bbb; padding: .3rem .6rem; }
+</style>
+</head>
+<body>
+
+<div id="results">running…</div>
+
+<div class="case" id="case-basic">
+	<h2>1. Marker alone on its own line</h2>
+	<p>Always visible paragraph.</p>
+	<p><span class="srm-marker" aria-hidden="true"></span></p>
+	<p>Hidden paragraph one.</p>
+	<p>Hidden paragraph two.</p>
+</div>
+
+<div class="case" id="case-midsentence">
+	<h2>2. Marker mid-sentence (paragraph split)</h2>
+	<p class="styled" data-keep="yes">Visible start of sentence. <span class="srm-marker" aria-hidden="true"></span>Hidden remainder of the very same sentence.</p>
+	<p>A following hidden paragraph.</p>
+</div>
+
+<div class="case" id="case-list">
+	<h2>3. Marker followed by a list and a table</h2>
+	<p>Visible.</p>
+	<p><span class="srm-marker" aria-hidden="true"></span></p>
+	<ul><li>Bullet one</li><li>Bullet two</li></ul>
+	<ol><li>Number one</li></ol>
+	<table><tbody><tr><td>Cell A</td><td>Cell B</td></tr></tbody></table>
+</div>
+
+<div class="case" id="case-nothing-after">
+	<h2>4. Marker with nothing after it (should add no toggle)</h2>
+	<p>Visible only.</p>
+	<p><span class="srm-marker" aria-hidden="true"></span></p>
+</div>
+
+<div class="case" id="case-focusable">
+	<h2>5. Focusable content inside the collapsed section (inert check)</h2>
+	<p>Visible.</p>
+	<p><span class="srm-marker" aria-hidden="true"></span></p>
+	<p><a id="buried-link" href="https://example.com">A link that must not be tabbable while collapsed</a></p>
+</div>
+
+<script>
+	// Mirrors what PHP prints before the script file.
+	window.simpleReadMoreConfig = { labelMore: 'Read More', labelLess: 'Read Less' };
+</script>
+<!-- defer, matching how the plugin enqueues it in WordPress. The script
+     then runs with readyState "interactive" and initialises immediately,
+     rather than waiting on DOMContentLoaded. -->
+<script defer src="../../assets/js/simple-read-more.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded', function () {
+	var out = [];
+	function check(name, cond, detail) {
+		out.push((cond ? '✓ PASS  ' : '✗ FAIL  ') + name + (detail && !cond ? '  → ' + detail : ''));
+		return cond;
+	}
+	function q(sel) { return document.querySelector(sel); }
+	function qa(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+
+	// --- Case 1 ---
+	var c1 = q('#case-basic');
+	check('1. one "Read More" toggle created', c1.querySelectorAll('.srm-toggle-more').length === 1);
+	check('1. "Read Less" toggle created and hidden', c1.querySelector('.srm-toggle-less') && c1.querySelector('.srm-toggle-less').hidden);
+	check('1. both following paragraphs collapsed', c1.querySelectorAll('.srm-hide-el').length === 2,
+		'got ' + c1.querySelectorAll('.srm-hide-el').length);
+	check('1. marker span removed from DOM', c1.querySelectorAll('.srm-marker').length === 0);
+	check('1. empty anchor paragraph hidden', !!c1.querySelector('.srm-anchor-empty'));
+	var c1more = c1.querySelector('.srm-toggle-more');
+	check('1. toggle is an <a> with role=button', c1more.tagName === 'A' && c1more.getAttribute('role') === 'button');
+	check('1. aria-controls lists every collapsed id',
+		c1more.getAttribute('aria-controls').split(' ').filter(Boolean).length === 2);
+	var c1last = c1.querySelectorAll('.srm-hide-el')[1];
+	check('1. "Read Less" sits after the LAST hidden element',
+		c1last.nextElementSibling === c1.querySelector('.srm-toggle-less'));
+	check('1. collapsed elements keep their original tag',
+		Array.prototype.every.call(c1.querySelectorAll('.srm-hide-el'), function (el) { return el.tagName === 'P'; }));
+
+	// --- Case 2: mid-sentence split ---
+	var c2 = q('#case-midsentence');
+	var c2orig = c2.querySelector('p.styled');
+	check('2. original paragraph keeps only the visible text',
+		c2orig.textContent.trim() === 'Visible start of sentence.', JSON.stringify(c2orig.textContent));
+	var c2twin = c2orig.nextElementSibling;
+	// The twin is inserted directly after the original, then the "Read More"
+	// link goes in between, so walk forward to find the hide element.
+	var c2hidden = c2.querySelectorAll('.srm-hide-el');
+	check('2. twin element + following paragraph both collapsed', c2hidden.length === 2, 'got ' + c2hidden.length);
+	var twin = c2hidden[0];
+	check('2. twin copied the class attribute', twin.classList.contains('styled'));
+	check('2. twin copied other attributes', twin.getAttribute('data-keep') === 'yes');
+	check('2. twin did NOT copy the id', !twin.hasAttribute('id') || twin.id.indexOf('srm-collapse-') === 0);
+	check('2. twin holds the remainder text',
+		twin.textContent.trim() === 'Hidden remainder of the very same sentence.', JSON.stringify(twin.textContent));
+	check('2. original paragraph NOT marked empty', !c2orig.classList.contains('srm-anchor-empty'));
+
+	// --- Case 3: structural tags ---
+	var c3 = q('#case-list');
+	var ul = c3.querySelector('ul');
+	check('3. <ul> itself is NOT the collapse host', !ul.classList.contains('srm-hide-el'));
+	check('3. <ul> is wrapped from the outside',
+		ul.parentElement.classList.contains('srm-hide-el-inner') &&
+		ul.parentElement.parentElement.classList.contains('srm-hide-el'));
+	check('3. <li> are still direct children of <ul>',
+		ul.children.length === 2 && ul.children[0].tagName === 'LI');
+	var tbl = c3.querySelector('table');
+	check('3. <table> wrapped from the outside, <tr> untouched',
+		!tbl.classList.contains('srm-hide-el') && tbl.querySelector('tbody > tr > td'));
+
+	// --- Case 4: nothing after ---
+	var c4 = q('#case-nothing-after');
+	check('4. no toggle added when there is nothing to hide',
+		c4.querySelectorAll('.srm-toggle').length === 0, 'got ' + c4.querySelectorAll('.srm-toggle').length);
+
+	// --- Case 5: inert / toggling ---
+	var c5 = q('#case-focusable');
+	var c5host = c5.querySelector('.srm-hide-el');
+	check('5. collapsed section starts inert', c5host.hasAttribute('inert'));
+	var c5more = c5.querySelector('.srm-toggle-more');
+	var c5less = c5.querySelector('.srm-toggle-less');
+	c5more.click();
+	check('5. after click: section open', c5host.classList.contains('srm-is-open'));
+	check('5. after click: inert removed', !c5host.hasAttribute('inert'));
+	check('5. after click: aria-expanded=true', c5more.getAttribute('aria-expanded') === 'true');
+	check('5. after click: More hidden, Less shown', c5more.hidden === true && c5less.hidden === false);
+	c5less.click();
+	check('5. after collapse: section closed', !c5host.classList.contains('srm-is-open'));
+	check('5. after collapse: inert restored', c5host.hasAttribute('inert'));
+	check('5. after collapse: More shown, Less hidden', c5more.hidden === false && c5less.hidden === true);
+
+	// --- Global ---
+	var ids = qa('.srm-hide-el').map(function (el) { return el.id; });
+	check('global: every collapse host has an id', ids.every(Boolean));
+	check('global: all collapse ids are unique', new Set(ids).size === ids.length);
+	check('global: labels came from the config object',
+		q('.srm-toggle-more').textContent === 'Read More' && q('.srm-toggle-less').textContent === 'Read Less');
+
+	var failed = out.filter(function (l) { return l.indexOf('FAIL') === 0 || l.charAt(0) === '✗'; });
+	var el = document.getElementById('results');
+	el.textContent = out.join('\n') + '\n\n' +
+		(failed.length ? failed.length + ' FAILED of ' + out.length : 'ALL ' + out.length + ' CHECKS PASSED');
+	el.className = failed.length ? 'fail' : 'pass';
+	window.__testSummary = { total: out.length, failed: failed.length, lines: out };
+});
+</script>
+</body>
+</html>

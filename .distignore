@@ -1,0 +1,31 @@
+# Everything listed here is excluded from the distributable .zip that
+# is uploaded to the WordPress.org plugin directory. Only runtime
+# files should ship; wp.org rejects zips carrying build tooling.
+
+.git
+.github
+.wordpress-org
+bin
+docs
+node_modules
+vendor
+build
+dist
+tests
+
+.distignore
+.editorconfig
+.gitattributes
+.gitignore
+.phpcs-cache
+.phpunit.result.cache
+composer.json
+composer.lock
+package.json
+package-lock.json
+phpcs.xml.dist
+phpunit.xml.dist
+
+CONTRIBUTING.md
+README.md
+CHANGELOG.md

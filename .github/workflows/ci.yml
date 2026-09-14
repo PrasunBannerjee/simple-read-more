@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  # Every branch, not just main. Work happens on branches here, and a
+  # branch whose checks only run once it reaches a pull request gives
+  # feedback far too late.
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Superseded runs are pointless once a newer commit exists on the same
+# branch, so cancel them rather than queueing.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# A push to a branch that also has an open pull request would otherwise
+# trigger two identical runs. Every job below skips the pull_request
+# event when the branch lives in this same repository, leaving one run
+# per push. Pull requests opened from forks, whose pushes this repo
+# never sees, still get checked.
+jobs:
+  lint-php:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    name: PHP ${{ matrix.php }} syntax
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Lowest supported version (per the Requires PHP header) and
+        # the current stable release.
+        php: [ '7.2', '8.4' ]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Lint every PHP file
+        run: find . -path ./vendor -prune -o -name '*.php' -print0 | xargs -0 -n1 -P4 php -l
+
+  coding-standards:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    name: WordPress Coding Standards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run PHPCS
+        run: composer run-script lint
+
+  plugin-check:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    name: WordPress.org Plugin Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      # Plugin Check must run against the built plugin, not the repo
+      # root. The repo carries tooling (phpcs.xml.dist, bin/, .github/)
+      # that .distignore keeps out of the zip; checking the root would
+      # flag all of it as files that should not ship. Building first
+      # also exercises the build script on every push.
+      - name: Build the distributable
+        run: bash bin/build-zip.sh
+
+      # Runs the same automated checks the WordPress.org review team
+      # runs against a submission, so failures surface here first.
+      - name: Run Plugin Check
+        uses: wordpress/plugin-check-action@v1
+        with:
+          build-dir: './build/simple-read-more'
