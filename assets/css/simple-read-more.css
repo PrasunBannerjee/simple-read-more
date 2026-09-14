@@ -1,0 +1,86 @@
+/**
+ * Simple Read More — front-end styles.
+ *
+ * Each hidden element animates its OWN height via a CSS grid row
+ * (0fr -> 1fr), rather than one shared wrapper animating many
+ * paragraphs at once. This keeps every element's own default margin
+ * from the theme or page builder intact whenever it is visible, while
+ * still fully collapsing it (including its own margin) while hidden.
+ *
+ * Every class name is prefixed with "srm-" (for Simple Read More)
+ * rather than being named for what it does, because generic names like
+ * .wrapper, .toggle, or .collapse are common in themes and other
+ * plugins; Bootstrap based themes in particular use .collapse
+ * constantly. Pairing an uncommon prefix with an already specific
+ * second half makes an accidental style or JS collision very unlikely.
+ *
+ * The toggle is implemented as a real <a href="#"> element, not a
+ * <button>, specifically so it automatically inherits whatever
+ * hyperlink styling is already defined elsewhere on the site: theme
+ * defaults, Global Style "Link" settings, Theme Style typography,
+ * page-level CSS, or widget-level hyperlink colors. All of those
+ * systems target the "a" element (directly or via ancestor selectors),
+ * and none of them target "button". Only color, text-decoration, and
+ * font come from the theme, on purpose; this file intentionally does
+ * not set any of those three so nothing here can fight with the site's
+ * own link styling. The rules below only handle layout (spacing,
+ * show/hide), never appearance.
+ *
+ * @package SimpleReadMore
+ */
+
+.srm-toggle {
+	display: inline-block;
+	margin-top: 0.75em;
+	cursor: pointer;
+}
+
+.srm-toggle[hidden] {
+	display: none;
+}
+
+.srm-hide-el {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: grid-template-rows 0.3s ease;
+}
+
+.srm-hide-el.srm-is-open {
+	grid-template-rows: 1fr;
+}
+
+.srm-hide-el:not(.srm-is-open) {
+	/* Collapses this element's own margin only while hidden, so a
+	   closed section leaves no stray blank gap. The moment it opens
+	   this rule stops matching and the element's normal margin
+	   (whatever the theme's CSS gives it) applies exactly as it would
+	   on any other paragraph; nothing is copied or guessed. */
+	margin-block: 0;
+}
+
+.srm-hide-el-inner {
+	overflow: hidden;
+	min-height: 0;
+}
+
+.srm-anchor-empty {
+	/* The paragraph that held the [readmore] marker itself; once the
+	   marker is removed it has nothing left to show. */
+	display: none;
+}
+
+.srm-marker {
+	display: none;
+}
+
+/**
+ * Respect the visitor's "reduce motion" system preference. The
+ * section still opens and closes exactly as before, it simply does so
+ * instantly instead of sliding.
+ */
+@media (prefers-reduced-motion: reduce) {
+
+	.srm-hide-el {
+		transition: none;
+	}
+}
