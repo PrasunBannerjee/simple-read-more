@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simple Read More — Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+	:root {
+		--ink: #1C1C1E;
+		--flare: #E23E1E;
+		--paper: #F1EFEC;
+		--flare-deep: #B4331A;
+		--flare-on-ink: #F2704F;
+		--body-text: #3A3A3C;
+		--white: #FFFFFF;
+
+		--ink-06: rgba(28, 28, 30, 0.06);
+		--ink-12: rgba(28, 28, 30, 0.12);
+		--ink-20: rgba(28, 28, 30, 0.2);
+		--ink-45: rgba(28, 28, 30, 0.45);
+	}
+
+	* { box-sizing: border-box; }
+	html { scroll-behavior: smooth; }
+
+	body {
+		margin: 0;
+		background: var(--paper);
+		color: var(--body-text);
+		font-family: 'DM Sans', sans-serif;
+		font-size: 17px;
+		line-height: 1.6;
+		-webkit-font-smoothing: antialiased;
+	}
+
+	a { color: var(--ink); }
+	a:not(.step, .mark-link) { text-decoration-color: var(--ink-20); text-underline-offset: 0.15em; }
+	a:hover { color: var(--flare-deep); text-decoration-color: var(--flare-deep); }
+
+	code {
+		font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+		background: var(--ink-06);
+		color: var(--flare-deep);
+		padding: 0.1em 0.35em;
+		border-radius: 4px;
+		font-size: 0.88em;
+	}
+
+	pre {
+		background: var(--ink);
+		color: var(--paper);
+		padding: 1rem 1.2rem;
+		border-radius: 6px;
+		overflow-x: auto;
+		font-size: 0.85rem;
+		line-height: 1.55;
+		margin: 1rem 0;
+	}
+	pre code { background: none; color: inherit; padding: 0; font-size: 1em; }
+
+	table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.92rem; }
+	th, td { text-align: left; padding: 0.65rem 0.75rem; border-bottom: 1px solid var(--ink-12); vertical-align: top; }
+	th {
+		font-family: 'DM Sans', sans-serif;
+		font-weight: 500;
+		text-transform: uppercase;
+		font-size: 0.7rem;
+		letter-spacing: 0.1em;
+		color: var(--ink-45);
+	}
+	tr:last-child td { border-bottom: none; }
+
+	:focus-visible { outline: 2px solid var(--flare-deep); outline-offset: 2px; }
+
+	/* ---------- Rhythm helpers: the strike is the only recurring
+	   ornament in this page, echoing the mark itself. No cards, no
+	   shadows, no rounded panels — rules and whitespace do the work. */
+
+	.strike {
+		width: 44px;
+		height: 4px;
+		background: var(--flare);
+		border-radius: 2px;
+		margin-bottom: 1.1rem;
+	}
+
+	.wrap {
+		max-width: 680px;
+		margin: 0 auto;
+		padding: 0 1.5rem;
+	}
+	.wrap-wide { max-width: 780px; }
+
+	/* ---------- Masthead: quiet, small, no color block ---------- */
+
+	.masthead {
+		padding: 2.6rem 0 0;
+	}
+	.masthead-inner {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+	}
+	.masthead-mark { flex: none; width: 26px; height: 26px; }
+	.masthead-name {
+		font-family: 'DM Sans', sans-serif;
+		font-weight: 800;
+		text-transform: uppercase;
+		letter-spacing: -0.01em;
+		font-size: 0.98rem;
+		color: var(--ink);
+	}
+	.masthead-tag {
+		margin-left: auto;
+		font-family: 'IBM Plex Mono', monospace;
+		font-size: 0.78rem;
+		color: var(--ink-45);
+	}
+
+	/* ---------- Intro: the whole pitch, stated once, plainly ---------- */
+
+	.intro { padding: 3.2rem 0 2.4rem; }
+	.intro h1 {
+		font-family: 'DM Sans', sans-serif;
+		font-weight: 800;
+		text-transform: uppercase;
+		letter-spacing: -0.025em;
+		line-height: 1.05;
+		font-size: clamp(2rem, 5vw, 3rem);
+		color: var(--ink);
+		margin: 0 0 1.1rem;
+	}
+	.intro .dek {
+		font-size: 1.15rem;
+		font-weight: 400;
+		color: var(--body-text);
+		max-width: 34ch;
+		margin: 0;
+	}
+	.intro .dek strong { color: var(--ink); font-weight: 700; }
+
+	/* ---------- Live proof: the plugin demonstrating itself, set at
+	   reading scale, no box around it. This replaces a screenshot. ---------- */
+
+	.proof {
+		padding: 0 0 3rem;
+		border-bottom: 1px solid var(--ink-12);
+		margin-bottom: 3rem;
+	}
+	.proof-label {
+		font-family: 'IBM Plex Mono', monospace;
+		font-size: 0.75rem;
+		color: var(--ink-45);
+		margin: 0 0 0.9rem;
+	}
+	.proof p {
+		font-size: 1.08rem;
+		line-height: 1.7;
+		margin: 0 0 0.9rem;
+		color: var(--ink);
+	}
+	.proof-toggle {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		background: none;
+		border: none;
+		padding: 0;
+		margin-top: 0.2rem;
+		font: inherit;
+		font-family: 'DM Sans', sans-serif;
+		font-weight: 700;
+		font-size: 0.95rem;
+		color: var(--flare-deep);
+		cursor: pointer;
+	}
+	.proof-toggle::before {
+		content: '';
+		width: 10px;
+		height: 2px;
+		background: var(--flare-deep);
+		display: inline-block;
+	}
+	.proof-toggle:hover { color: var(--ink); }
+	.proof-toggle:hover::before { background: var(--ink); }
+	.proof-toggle[hidden] { display: none; }
+	.proof-collapse {
+		display: grid;
+		grid-template-rows: 0fr;
+		transition: grid-template-rows 0.3s ease;
+	}
+	.proof-collapse.open { grid-template-rows: 1fr; }
+	.proof-collapse-inner { overflow: hidden; min-height: 0; }
+
+	/* ---------- Three steps: the entire onboarding, stated as fact ---------- */
+
+	.steps { padding: 0 0 3.2rem; }
+	.steps-head {
+		font-family: 'DM Sans', sans-serif;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.02em;
+		font-size: 0.95rem;
+		color: var(--ink);
+		margin: 0 0 1.6rem;
+	}
+	.step-list { list-style: none; margin: 0; padding: 0; }
+	.step {
+		display: grid;
+		grid-template-columns: 2.6rem 1fr;
+		gap: 1rem;
+		padding: 1.1rem 0;
+		border-top: 1px solid var(--ink-12);
+	}
+	.step:last-child { border-bottom: 1px solid var(--ink-12); }
+	.step-num {
+		font-family: 'IBM Plex Mono', monospace;
+		font-size: 1.3rem;
+		color: var(--flare-deep);
+		line-height: 1.5;
+	}
+	.step-body h3 {
+		font-family: 'DM Sans', sans-serif;
+		font-weight: 700;
+		font-size: 1.02rem;
+		color: var(--ink);
+		margin: 0 0 0.3rem;
+	}
+	.step-body p { margin: 0; font-size: 0.97rem; }
+	.step-body pre { margin-top: 0.7rem; }
+
+	.done-line {
+		margin: 1.6rem 0 0;
+		font-family: 'DM Sans', sans-serif;
+		font-weight: 700;
+		color: var(--ink);
+		font-size: 1.05rem;
+	}
+	.done-line span { color: var(--flare-deep); }
+
+	/* ---------- Philosophy: why there is no settings screen ---------- */
+
+	.philosophy {
+		padding: 0 0 3.2rem;
+		border-top: 1px solid var(--ink-12);
+		border-bottom: 1px solid var(--ink-12);
+	}
+	.philosophy-inner { padding-top: 2.6rem; }
+	.philosophy h2 {
+		font-family: 'DM Sans', sans-serif;
+		font-weight: 800;
+		text-transform: uppercase;
+		letter-spacing: -0.02em;
+		font-size: 1.4rem;
+		color: var(--ink);
+		margin: 0 0 0.9rem;
+	}
+	.philosophy p { margin: 0 0 0.9rem; }
+	.philosophy p:last-child { margin-bottom: 0; }
+
+	/* ---------- Reference: everything else, tucked behind disclosure.
+	   The plugin hides content until asked for it; so does this page. ---------- */
+
+	.reference { padding: 3rem 0 4rem; }
+	.reference > .strike { margin-bottom: 0.6rem; }
+	.reference-head {
+		font-family: 'DM Sans', sans-serif;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.02em;
+		font-size: 0.95rem;
+		color: var(--ink);
+		margin: 0 0 0.4rem;
+	}
+	.reference-sub {
+		font-size: 0.92rem;
+		color: var(--ink-45);
+		margin: 0 0 1.6rem;
+	}
+
+	details {
+		border-top: 1px solid var(--ink-12);
+	}
+	details:last-of-type { border-bottom: 1px solid var(--ink-12); }
+
+	summary {
+		list-style: none;
+		cursor: pointer;
+		padding: 1.1rem 0;
+		display: flex;
+		align-items: center;
+		gap: 0.8rem;
+		font-family: 'DM Sans', sans-serif;
+		font-weight: 700;
+		font-size: 1.02rem;
+		color: var(--ink);
+	}
+	summary::-webkit-details-marker { display: none; }
+	summary::before {
+		content: '+';
+		font-family: 'IBM Plex Mono', monospace;
+		font-weight: 400;
+		font-size: 1.2rem;
+		color: var(--flare-deep);
+		width: 1rem;
+		flex: none;
+	}
+	details[open] > summary::before { content: '–'; }
+	details[open] > summary { padding-bottom: 0.6rem; }
+
+	.detail-body { padding: 0 0 1.6rem 1.8rem; }
+	.detail-body > *:first-child { margin-top: 0; }
+	.detail-body h4 {
+		font-family: 'DM Sans', sans-serif;
+		font-weight: 700;
+		font-size: 0.92rem;
+		color: var(--ink);
+		margin: 1.3rem 0 0.5rem;
+	}
+	.detail-body h4:first-child { margin-top: 0; }
+	.detail-body p { margin: 0 0 0.8rem; }
+	.detail-body ul, .detail-body ol { padding-left: 1.2rem; margin: 0 0 0.8rem; }
+	.detail-body li { margin: 0.3rem 0; }
+
+	.note {
+		border-left: 2px solid var(--ink-20);
+		padding: 0.15rem 0 0.15rem 0.9rem;
+		margin: 0.9rem 0;
+		font-size: 0.92rem;
+		color: var(--ink-45);
+	}
+	.note strong { color: var(--body-text); }
+	.note.warn { border-left-color: var(--flare-deep); }
+	.note.warn strong { color: var(--flare-deep); }
+
+	.risk { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 5px; font-size: 0.76rem; font-weight: 600; }
+	.risk.verylow { background: #E8F8EE; color: #157347; }
+	.risk.low { background: #FFF6DD; color: #92650A; }
+	.risk.medium { background: #FDEAEA; color: #B42318; }
+
+	/* ---------- Footer ---------- */
+
+	footer {
+		padding: 2.4rem 0 3.5rem;
+		font-size: 0.85rem;
+		color: var(--ink-45);
+	}
+	footer a { color: var(--ink-45); }
+
+	@media (max-width: 560px) {
+		.intro { padding-top: 2.2rem; }
+		.step { grid-template-columns: 2rem 1fr; }
+		.detail-body { padding-left: 1.2rem; }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		html { scroll-behavior: auto; }
+		.proof-collapse { transition: none; }
+	}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+	<div class="wrap wrap-wide masthead-inner">
+		<svg class="masthead-mark" viewBox="850 855 1300 1245" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Simple Read More">
+			<path fill="#1C1C1E" d="M1085.11 919.15l829.78 0c24.67,0 44.68,20.01 44.68,44.68l0 57.44c0,24.68 -20.01,44.69 -44.68,44.69l-829.78 0c-24.67,0 -44.68,-20.01 -44.68,-44.69l-0.01 -57.44c0.01,-24.67 20.02,-44.68 44.69,-44.68z"/>
+			<path fill="#1C1C1E" d="M1085.11 1155.32l242.55 0c24.67,0 44.68,20.01 44.68,44.68l0 57.45c0,24.67 -20.01,44.68 -44.68,44.68l-242.55 0c-24.67,0 -44.68,-20.01 -44.68,-44.68l-0.01 -57.45c0.01,-24.67 20.02,-44.68 44.69,-44.68z"/>
+			<path fill="#1C1C1E" d="M1085.11 1391.49l829.78 0c24.67,0 44.68,20.01 44.68,44.68l0 57.44c0,24.68 -20.01,44.68 -44.68,44.68l-829.78 0.01c-24.67,-0.01 -44.68,-20.01 -44.68,-44.69l-0.01 -57.44c0.01,-24.67 20.02,-44.68 44.69,-44.68z"/>
+			<path fill="#E23E1E" d="M912.76 1595.74l1174.47 0c7.05,0 12.77,5.72 12.77,12.77l0 19.15c0,7.05 -5.72,12.76 -12.77,12.76l-1174.47 0c-7.04,0 -12.76,-5.71 -12.76,-12.76l0 -19.15c0,-7.05 5.72,-12.77 12.77,-12.77z"/>
+			<path fill="#1C1C1E" fill-opacity="0.45" d="M1672.34 1697.87l242.55 0c24.67,0 44.68,20.01 44.68,44.68l0 57.45c0,24.67 -20.01,44.68 -44.68,44.68l-242.55 0c-24.67,0 -44.68,-20.01 -44.68,-44.68l0 -57.45c0,-24.67 20.01,-44.68 44.68,-44.68z"/>
+			<path fill="#1C1C1E" fill-opacity="0.45" d="M1085.11 1934.04l829.78 0c24.67,0 44.68,20.01 44.68,44.68l0 57.45c0,24.67 -20.01,44.68 -44.68,44.68l-829.78 0c-24.67,0 -44.68,-20.01 -44.68,-44.68l-0.01 -57.45c0.01,-24.67 20.02,-44.68 44.69,-44.68z"/>
+		</svg>
+		<span class="masthead-name">Simple Read More</span>
+		<span class="masthead-tag">Guide</span>
+	</div>
+</header>
+
+<section class="intro">
+	<div class="wrap">
+		<h1>One shortcode.<br>Nothing to configure.</h1>
+		<p class="dek">Type <strong>[readmore]</strong> where you want your content to stop. That's the entire plugin — this page is longer than the thing it describes.</p>
+	</div>
+</section>
+
+<section class="proof">
+	<div class="wrap">
+		<p class="proof-label">THIS IS THE WHOLE PRODUCT, RUNNING RIGHT NOW</p>
+		<p>A reader lands on your page and sees this sentence, and nothing past it.</p>
+		<button class="proof-toggle" id="proofMore" aria-expanded="false" aria-controls="proofCollapse">Read More</button>
+		<div class="proof-collapse" id="proofCollapse">
+			<div class="proof-collapse-inner">
+				<p>They click, and this second sentence appears — smoothly, in place, without the page jumping or reloading. "Read Less" shows up right here, at the end of what they just read, not back where they clicked.</p>
+				<button class="proof-toggle" id="proofLess" aria-expanded="false" aria-controls="proofCollapse" hidden>Read Less</button>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="steps">
+	<div class="wrap">
+		<p class="steps-head">Getting there takes three steps</p>
+		<ol class="step-list">
+			<li class="step">
+				<span class="step-num">01</span>
+				<div class="step-body">
+					<h3>Install and activate</h3>
+					<p>Plugins → Add New Plugin → search "Simple Read More" → Install Now → Activate. Ordinary WordPress, nothing special.</p>
+				</div>
+			</li>
+			<li class="step">
+				<span class="step-num">02</span>
+				<div class="step-body">
+					<h3>Type the marker</h3>
+					<p>Anywhere in your content, on its own line, at the point where you want the split:</p>
+					<pre><code>[readmore]</code></pre>
+				</div>
+			</li>
+			<li class="step">
+				<span class="step-num">03</span>
+				<div class="step-body">
+					<h3>Publish</h3>
+					<p>Everything before the marker stays visible. Everything after it collapses behind a "Read More" link. View the page — it already works.</p>
+				</div>
+			</li>
+		</ol>
+		<p class="done-line"><span>That's the manual.</span> Everything from here down is optional reading for the handful of people who want more control or hit an edge case.</p>
+	</div>
+</section>
+
+<section class="philosophy">
+	<div class="wrap philosophy-inner">
+		<div class="strike"></div>
+		<h2>Why there's no settings screen</h2>
+		<p>Most plugins in this category ship an options panel: pick your colors, pick your animation, pick your breakpoints. That's not an oversight here — it was left out on purpose.</p>
+		<p>A settings screen is a promise that something might go wrong without it, and a maintenance surface that has to keep working across every WordPress and PHP version forever. This plugin does one job — split content at a marker, reveal it on click — and does it the same way for everyone. The one thing worth controlling, the wording of the two links, is still changeable; it just lives in a filter instead of a screen, so updating the plugin can never quietly reset it.</p>
+		<p>Lightweight isn't the marketing description. It's the actual mechanism: no database writes, no admin page to render, no options to migrate between versions. Activate it and it is already doing its job.</p>
+	</div>
+</section>
+
+<section class="reference">
+	<div class="wrap">
+		<div class="strike"></div>
+		<p class="reference-head">The rest, if you need it</p>
+		<p class="reference-sub">Closed by default. Open whichever applies to you.</p>
+
+		<details id="widgets">
+			<summary>Using it somewhere shortcodes don't run</summary>
+			<div class="detail-body">
+				<p>Most widgets and blocks process <code>[readmore]</code> normally. A few raw-HTML contexts don't. In those, paste this instead — it behaves identically:</p>
+				<pre><code>&lt;span class="srm-marker"&gt;&lt;/span&gt;</code></pre>
+				<p>The span is intentionally empty; nothing needs to go inside it.</p>
+				<div class="note warn"><strong>One marker per block.</strong> Two separate Read More sections need two separate text blocks. A second marker inside content that's already collapsed won't split independently.</div>
+				<h4>Two edge cases, handled automatically</h4>
+				<ul>
+					<li>A marker typed mid-sentence, rather than alone on its own line, still works — the sentence splits at that exact point.</li>
+					<li>A bulleted or numbered list right after the marker still renders correctly; the plugin is careful never to break a list's markup while hiding it.</li>
+				</ul>
+			</div>
+		</details>
+
+		<details id="accessibility">
+			<summary>Accessibility</summary>
+			<div class="detail-body">
+				<p>Both toggles are real links under the hood — that's deliberate, since it's what lets them automatically inherit your theme's existing link color and underline style rather than looking like a foreign UI element dropped into your content.</p>
+				<ul>
+					<li>Reachable and operable with a keyboard alone: Tab to focus, Enter or Space to activate.</li>
+					<li>Announced correctly by screen readers as expand/collapse controls, with the current state kept in sync.</li>
+					<li>Collapsed content can't be tabbed into while hidden, so a keyboard user is never dropped silently into something invisible.</li>
+					<li>The reveal is instant rather than animated for any visitor whose system is set to reduce motion.</li>
+				</ul>
+			</div>
+		</details>
+
+		<details id="customizing">
+			<summary>Customizing the wording, speed, and look</summary>
+			<div class="detail-body">
+				<p>There's no screen for this, so it happens in code — a few lines, added once.</p>
+
+				<h4>Link wording</h4>
+				<p>In a child theme's <code>functions.php</code>:</p>
+				<pre><code>add_filter( 'simple_read_more_labels', function ( $labels ) {
+	$labels['more'] = 'Show More';
+	$labels['less'] = 'Show Less';
+	return $labels;
+} );</code></pre>
+				<p>Or, without touching theme files, in <code>wp-config.php</code>:</p>
+				<pre><code>define( 'SIMPLE_READ_MORE_LABEL_MORE', 'Show More' );
+define( 'SIMPLE_READ_MORE_LABEL_LESS', 'Show Less' );</code></pre>
+				<p>Either survives plugin updates. Editing <code>simple-read-more.php</code> directly also works, but that edit is erased the next time the plugin updates.</p>
+
+				<h4>Animation speed</h4>
+				<p>In <strong>Appearance → Customize → Additional CSS</strong>:</p>
+				<pre><code>.srm-hide-el {
+	transition: grid-template-rows 0.6s ease-in-out;
+}</code></pre>
+				<p>Smaller number, faster reveal. <code>ease-in-out</code> tends to read as the smoothest option.</p>
+
+				<h4>Link color and underline</h4>
+				<p>The toggle links inherit your theme's link styling on purpose, which is why the plugin sets almost nothing of its own. To override that, add a rule rather than edit the plugin's:</p>
+				<pre><code>.srm-toggle {
+	color: #1C1C1E;
+	text-decoration: none;
+}</code></pre>
+				<p>A bit more breathing room above the link: <code>margin-top: 1.5em;</code> in that same rule.</p>
+			</div>
+		</details>
+
+		<details id="troubleshooting">
+			<summary>Troubleshooting</summary>
+			<div class="detail-body">
+				<h4>The link never appears</h4>
+				<ul>
+					<li>Confirm the plugin shows as active under <strong>Plugins</strong>.</li>
+					<li>Confirm <code>[readmore]</code> is typed exactly, square brackets included.</li>
+					<li>Confirm there's actually content after the marker — with nothing to reveal, no link is shown, by design.</li>
+				</ul>
+				<h4><code>[readmore]</code> shows up as literal text on the page</h4>
+				<p>That widget isn't processing shortcodes. Use the HTML marker instead — see "Using it somewhere shortcodes don't run" above.</p>
+				<h4>Clicking does nothing</h4>
+				<p>Open the browser console (F12) and look for a red error. This plugin's script has no dependencies and can't conflict with itself, so an error here almost always points to a different plugin or the theme.</p>
+				<h4>The reveal jumps instead of sliding</h4>
+				<p>A caching or minification plugin may be stripping the transition rule, or a theme forces <code>transition: none</code> for its own reduced-motion handling. Temporarily disable CSS minification to confirm.</p>
+			</div>
+		</details>
+
+		<details id="updates">
+			<summary>Updates and conflicts</summary>
+			<div class="detail-body">
+				<p>Nothing here touches WordPress core, the theme, or any third-party API, so most updates are non-events. What's actually worth a glance:</p>
+				<table>
+					<thead><tr><th>Event</th><th>Risk</th><th>What to check</th></tr></thead>
+					<tbody>
+						<tr><td>WordPress core update</td><td><span class="risk verylow">Very low</span></td><td>Nothing — only long-stable, non-deprecated functions are used.</td></tr>
+						<tr><td>Theme switch</td><td><span class="risk verylow">Very low</span></td><td>Nothing — the plugin never touches theme files.</td></tr>
+						<tr><td>A new plugin, later</td><td><span class="risk medium">Medium</span></td><td>A class literally named <code>.srm-toggle</code>, <code>.srm-hide-el</code>, or <code>.srm-marker</code> could collide. Deliberately unlikely, not impossible.</td></tr>
+						<tr><td>A caching plugin</td><td><span class="risk low">Low</span></td><td>Exclude <code>assets/css/simple-read-more.css</code> and <code>assets/js/simple-read-more.js</code> from aggressive minification if the animation stops.</td></tr>
+					</tbody>
+				</table>
+				<p>If something does break: deactivate the plugin first to confirm it's the cause, then check the console for an error mentioning <code>srm</code> or <code>simpleReadMore</code>.</p>
+			</div>
+		</details>
+
+		<details id="quick-reference">
+			<summary>Quick reference</summary>
+			<div class="detail-body">
+				<table>
+					<tbody>
+						<tr><td>Split content</td><td>Type <code>[readmore]</code> on its own line</td></tr>
+						<tr><td>Where shortcodes don't run</td><td><code>&lt;span class="srm-marker"&gt;&lt;/span&gt;</code></td></tr>
+						<tr><td>Change the wording</td><td><code>simple_read_more_labels</code> filter, or the two <code>SIMPLE_READ_MORE_LABEL_*</code> constants</td></tr>
+						<tr><td>Change the speed</td><td><code>.srm-hide-el</code> transition, via Additional CSS</td></tr>
+						<tr><td>Change the color</td><td><code>.srm-toggle</code> rule, via Additional CSS</td></tr>
+						<tr><td>Rule out this plugin</td><td>Deactivate it and see if the issue disappears</td></tr>
+					</tbody>
+				</table>
+			</div>
+		</details>
+	</div>
+</section>
+
+<footer>
+	<div class="wrap">
+		<p>Simple Read More — a free, GPL-licensed WordPress plugin.</p>
+	</div>
+</footer>
+
+<script>
+(function () {
+	'use strict';
+
+	var proofMore = document.getElementById('proofMore');
+	var proofLess = document.getElementById('proofLess');
+	var proofCollapse = document.getElementById('proofCollapse');
+
+	function toggleProof() {
+		var isOpen = proofCollapse.classList.toggle('open');
+		proofMore.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+		proofLess.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+		proofMore.hidden = isOpen;
+		proofLess.hidden = !isOpen;
+	}
+	proofMore.addEventListener('click', toggleProof);
+	proofLess.addEventListener('click', toggleProof);
+
+	// Deep-linking into a closed <details> section: if the page is
+	// opened with a matching #hash, open that section and scroll to it,
+	// since native <details> ignores anchor targets inside itself.
+	function openFromHash() {
+		var id = window.location.hash.slice(1);
+		if (!id) { return; }
+		var el = document.getElementById(id);
+		if (el && el.tagName === 'DETAILS') {
+			el.open = true;
+			el.scrollIntoView({ block: 'start' });
+		}
+	}
+	window.addEventListener('hashchange', openFromHash);
+	openFromHash();
+})();
+</script>
+
+</body>
+</html>

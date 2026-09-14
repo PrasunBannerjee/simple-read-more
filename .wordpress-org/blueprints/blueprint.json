@@ -1,0 +1,32 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"landingPage": "/",
+	"preferredVersions": {
+		"php": "8.3",
+		"wp": "latest"
+	},
+	"phpExtensionBundles": [
+		"kitchen-sink"
+	],
+	"steps": [
+		{
+			"step": "login",
+			"username": "admin",
+			"password": "password"
+		},
+		{
+			"step": "installPlugin",
+			"pluginZipFile": {
+				"resource": "wordpress.org/plugins",
+				"slug": "simple-read-more"
+			},
+			"options": {
+				"activate": true
+			}
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php require_once 'wordpress/wp-load.php'; $paragraphs = array( 'This first paragraph is always visible to every reader. The [readmore] marker on the next line is the entire configuration: everything after it starts collapsed.', '[readmore]', 'This paragraph was hidden until you clicked. Notice that it renders in exactly the same typography as the paragraph above it, because the plugin collapses elements where they already sit rather than moving them into a new container.', 'Lists work too, and keep their bullets:', '<ul><li>The marker can go anywhere in your content.</li><li>Lists and tables are handled so their rows stay intact.</li><li>Collapsed content cannot be reached by keyboard until it is open.</li></ul>', 'And the Read Less link sits at the end of the revealed text, right where your eyes are now, rather than back up where you clicked Read More.' ); $page_id = wp_insert_post( array( 'post_title' => 'Simple Read More demo', 'post_content' => implode( PHP_EOL . PHP_EOL, $paragraphs ), 'post_status' => 'publish', 'post_type' => 'page' ) ); if ( $page_id && ! is_wp_error( $page_id ) ) { update_option( 'show_on_front', 'page' ); update_option( 'page_on_front', $page_id ); }"
+		}
+	]
+}
