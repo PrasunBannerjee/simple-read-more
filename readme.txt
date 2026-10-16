@@ -34,6 +34,7 @@ This plugin never relocates your elements. Each one that needs to hide becomes a
 
 * Both toggles are real links, marked up so screen readers announce them as buttons, since they reveal content on the same page rather than navigating anywhere.
 * Fully keyboard operable: Tab to focus, Enter or Space to activate.
+* Focus follows the content: opening moves it to the start of the revealed text, and closing returns it to "Read More", so keyboard users never lose their place.
 * `aria-expanded` and `aria-controls` are kept in sync, so assistive technology always announces the current state.
 * Collapsed sections carry the `inert` attribute, so keyboard users cannot Tab into links or form fields that are invisible on screen.
 * The expand animation is skipped automatically for visitors whose system is set to "reduce motion".

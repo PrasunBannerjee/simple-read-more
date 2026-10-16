@@ -51,11 +51,11 @@ if you are touching plugin headers, escaping, or enqueues.
 ## Tests
 
 There is a browser-based DOM test harness at `tests/manual/index.html`. It
-exercises the real `assets/css` and `assets/js` files and asserts 49
+exercises the real `assets/css` and `assets/js` files and asserts 53
 properties of the resulting DOM: which elements get collapsed, that the
 twin element in a mid-sentence split copies attributes but not the id,
 that list and table children stay direct children, that `inert` is added
-and removed correctly, and that collapse ids stay unique.
+and removed correctly, that focus moves into the revealed text and back, and that collapse ids stay unique.
 
 ```bash
 node bin/serve-tests.js

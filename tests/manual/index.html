@@ -76,6 +76,13 @@
 	<p>Visible line.<br><span class="srm-marker"></span><br>Hidden line.</p>
 </div>
 
+<div class="case" id="case-own-tabindex">
+	<h2>9. First hidden element already has its own tabindex</h2>
+	<p>Visible.</p>
+	<p><span class="srm-marker" aria-hidden="true"></span></p>
+	<p tabindex="0">Hidden, but deliberately focusable by its author.</p>
+</div>
+
 <script>
 	// Mirrors what PHP prints before the script file.
 	window.simpleReadMoreConfig = { labelMore: 'Read More', labelLess: 'Read Less' };
@@ -161,15 +168,22 @@ window.addEventListener('DOMContentLoaded', function () {
 	check('5. collapsed section starts inert', c5host.hasAttribute('inert'));
 	var c5more = c5.querySelector('.srm-toggle-more');
 	var c5less = c5.querySelector('.srm-toggle-less');
+	check('5. first collapsed element is focusable by script only (tabindex=-1)', c5host.getAttribute('tabindex') === '-1');
+	c5more.focus();
 	c5more.click();
 	check('5. after click: section open', c5host.classList.contains('srm-is-open'));
+	check('5. after click: focus moved to the start of the revealed text', document.activeElement === c5host,
+		'focus is on ' + document.activeElement.tagName);
 	check('5. after click: inert removed', !c5host.hasAttribute('inert'));
 	check('5. after click: aria-expanded=true', c5more.getAttribute('aria-expanded') === 'true');
 	check('5. after click: More hidden, Less shown', c5more.hidden === true && c5less.hidden === false);
 	check('5. after click: wrappers follow their links',
 		c5more.parentElement.hidden === true && c5less.parentElement.hidden === false);
+	c5less.focus();
 	c5less.click();
 	check('5. after collapse: section closed', !c5host.classList.contains('srm-is-open'));
+	check('5. after collapse: focus back on "Read More"', document.activeElement === c5more,
+		'focus is on ' + document.activeElement.tagName);
 	check('5. after collapse: inert restored', c5host.hasAttribute('inert'));
 	check('5. after collapse: More shown, Less hidden', c5more.hidden === false && c5less.hidden === true);
 	check('5. after collapse: wrappers follow their links',
@@ -215,6 +229,10 @@ window.addEventListener('DOMContentLoaded', function () {
 		c8twin && c8twin.querySelector('.srm-hide-el-inner').firstChild.nodeName !== 'BR');
 
 	// --- Global ---
+	// --- Case 9: existing tabindex ---
+	check('9. an element\'s own tabindex is not overwritten',
+		q('#case-own-tabindex .srm-hide-el').getAttribute('tabindex') === '0');
+
 	var ids = qa('.srm-hide-el').map(function (el) { return el.id; });
 	check('global: every collapse host has an id', ids.every(Boolean));
 	check('global: all collapse ids are unique', new Set(ids).size === ids.length);

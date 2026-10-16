@@ -28,7 +28,9 @@ Initial release.
 - Accessibility: real link elements with `role="button"`, synced
   `aria-expanded` / `aria-controls`, Enter and Space both activate, and
   `inert` on collapsed sections so keyboard users cannot Tab into hidden
-  content. The animation is skipped under `prefers-reduced-motion`.
+  content. Focus moves to the start of the revealed text on open and back
+  to "Read More" on close, so keyboard users never lose their place. The
+  animation is skipped under `prefers-reduced-motion`.
 - Labels are changeable via the `simple_read_more_labels` filter or the
   `SIMPLE_READ_MORE_LABEL_MORE` / `SIMPLE_READ_MORE_LABEL_LESS`
   constants.

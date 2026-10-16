@@ -22,6 +22,11 @@
  * confusing and inaccessible. `inert` is supported in all current
  * evergreen browsers.
  *
+ * Because the link that was just activated hides itself, focus is
+ * moved on every toggle: to the start of the revealed text on open,
+ * and back to "Read More" on close. Otherwise a keyboard user would be
+ * sent back to the top of the page each time.
+ *
  * Vanilla JS only, wrapped in an IIFE so nothing leaks into the
  * global namespace. Uses only current, non-deprecated DOM APIs.
  *
@@ -257,7 +262,15 @@
 		var linkLessEl = srmBuildToggle( 'srm-toggle-less', SRM_LABEL_LESS, collapseIds );
 		srmSetToggleHidden( linkLessEl, true );
 
+		var firstHostEl = hostEls[ 0 ];
 		var lastHostEl = hostEls[ hostEls.length - 1 ];
+
+		// Lets srmToggle() move focus to the start of the revealed text
+		// without adding that element to the Tab order. An element that
+		// already carries its own tabindex is left alone.
+		if ( ! firstHostEl.hasAttribute( 'tabindex' ) ) {
+			firstHostEl.setAttribute( 'tabindex', '-1' );
+		}
 
 		// "Read More" goes right after the anchor paragraph. "Read
 		// Less" goes right after the LAST hidden element, as a new
@@ -286,6 +299,21 @@
 			linkLessEl.setAttribute( 'aria-expanded', isOpenState ? 'true' : 'false' );
 			srmSetToggleHidden( linkMoreEl, isOpenState );
 			srmSetToggleHidden( linkLessEl, ! isOpenState );
+
+			// The link just activated is now hidden, and a hidden element
+			// cannot keep focus, so the browser would drop it back to the
+			// top of the page. Move it somewhere useful instead: into the
+			// revealed text on open, back to "Read More" on close. This
+			// runs after inert is removed above, since an inert element
+			// cannot take focus. preventScroll on open because the
+			// revealed text starts right where the reader already is and
+			// is still animating open; on close, letting the browser
+			// scroll brings "Read More" back into view.
+			if ( isOpenState ) {
+				firstHostEl.focus( { preventScroll: true } );
+			} else {
+				linkMoreEl.focus();
+			}
 		}
 
 		// Native <a> elements only fire "click" from the Enter key.

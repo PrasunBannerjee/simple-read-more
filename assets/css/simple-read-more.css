@@ -59,6 +59,14 @@
 	margin-block: 0;
 }
 
+.srm-hide-el[tabindex="-1"]:focus {
+	/* Focus lands here only from script, when the section opens, so a
+	   keyboard user carries on reading from the right place. The text
+	   is not interactive, so a focus ring around it would only look
+	   like a stray border. */
+	outline: none;
+}
+
 .srm-hide-el-inner {
 	overflow: hidden;
 	min-height: 0;

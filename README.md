@@ -86,7 +86,7 @@ On Windows without Git Bash, use the PowerShell build script instead:
 powershell -ExecutionPolicy Bypass -File bin\build-zip.ps1
 ```
 
-There is also a browser-based DOM test harness that runs the real asset files and asserts 49 properties of the resulting markup:
+There is also a browser-based DOM test harness that runs the real asset files and asserts 53 properties of the resulting markup:
 
 ```bash
 node bin/serve-tests.js
