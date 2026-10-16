@@ -35,7 +35,8 @@
 	cursor: pointer;
 }
 
-.srm-toggle[hidden] {
+.srm-toggle[hidden],
+.srm-toggle-wrap[hidden] {
 	display: none;
 }
 

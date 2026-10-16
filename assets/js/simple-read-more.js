@@ -147,19 +147,21 @@
 
 		var linkMoreEl = srmBuildToggle( 'srm-toggle-more', SRM_LABEL_MORE, collapseIds );
 		var linkLessEl = srmBuildToggle( 'srm-toggle-less', SRM_LABEL_LESS, collapseIds );
-		linkLessEl.hidden = true;
+		srmSetToggleHidden( linkLessEl, true );
 
 		var lastHostEl = hostEls[ hostEls.length - 1 ];
 
 		// "Read More" goes right after the anchor paragraph. "Read
 		// Less" goes right after the LAST hidden element, as a new
 		// sibling following a real block element; this is what
-		// guarantees it always starts on its own line.
-		containerEl.insertBefore( linkMoreEl, anchorEl.nextSibling );
+		// guarantees it always starts on its own line. Each link sits
+		// inside its own block wrapper, so it is the wrapper, not the
+		// link, that becomes a child of the container.
+		containerEl.insertBefore( linkMoreEl.parentElement, anchorEl.nextSibling );
 		if ( lastHostEl.nextSibling ) {
-			containerEl.insertBefore( linkLessEl, lastHostEl.nextSibling );
+			containerEl.insertBefore( linkLessEl.parentElement, lastHostEl.nextSibling );
 		} else {
-			containerEl.appendChild( linkLessEl );
+			containerEl.appendChild( linkLessEl.parentElement );
 		}
 
 		var isOpenState = false;
@@ -174,8 +176,8 @@
 			} );
 			linkMoreEl.setAttribute( 'aria-expanded', isOpenState ? 'true' : 'false' );
 			linkLessEl.setAttribute( 'aria-expanded', isOpenState ? 'true' : 'false' );
-			linkMoreEl.hidden = isOpenState;
-			linkLessEl.hidden = ! isOpenState;
+			srmSetToggleHidden( linkMoreEl, isOpenState );
+			srmSetToggleHidden( linkLessEl, ! isOpenState );
 		}
 
 		// Native <a> elements only fire "click" from the Enter key.
@@ -234,7 +236,18 @@
 		return targetEl;
 	}
 
+	// Builds a toggle link inside its own block-level wrapper. The link
+	// stays an inline <a> so it keeps the theme's link styling, but it
+	// is never a direct child of the content container. Block themes
+	// align every child of a "constrained" layout to the text column
+	// with auto side margins, which only work on block boxes; a bare
+	// inline-block link ignores them and drifts to the container's left
+	// edge, outside the column. The wrapper is the block box that gets
+	// aligned, and the link simply sits at its start, like text.
 	function srmBuildToggle( extraClass, label, collapseIds ) {
+		var wrapEl = document.createElement( 'div' );
+		wrapEl.className = 'srm-toggle-wrap';
+
 		var linkEl = document.createElement( 'a' );
 		linkEl.href = '#';
 		linkEl.setAttribute( 'role', 'button' );
@@ -242,7 +255,18 @@
 		linkEl.textContent = label;
 		linkEl.setAttribute( 'aria-expanded', 'false' );
 		linkEl.setAttribute( 'aria-controls', collapseIds );
+
+		wrapEl.appendChild( linkEl );
 		return linkEl;
+	}
+
+	// Hides or shows a toggle together with its wrapper. Hiding only
+	// the link would leave an empty wrapper behind, and block themes
+	// put a gap above every child of the container, so that empty
+	// wrapper would still show up as blank space.
+	function srmSetToggleHidden( linkEl, isHidden ) {
+		linkEl.hidden = isHidden;
+		linkEl.parentElement.hidden = isHidden;
 	}
 
 	if ( document.readyState === 'loading' ) {

@@ -85,7 +85,14 @@ window.addEventListener('DOMContentLoaded', function () {
 		c1more.getAttribute('aria-controls').split(' ').filter(Boolean).length === 2);
 	var c1last = c1.querySelectorAll('.srm-hide-el')[1];
 	check('1. "Read Less" sits after the LAST hidden element',
-		c1last.nextElementSibling === c1.querySelector('.srm-toggle-less'));
+		c1last.nextElementSibling === c1.querySelector('.srm-toggle-less').parentElement);
+	check('1. each toggle sits in its own block wrapper, a direct child of the container',
+		qa('#case-basic .srm-toggle').every(function (a) {
+			var w = a.parentElement;
+			return w.classList.contains('srm-toggle-wrap') && w.parentElement === c1 && w.children.length === 1 &&
+				(w.hidden || getComputedStyle(w).display === 'block');
+		}));
+	check('1. hidden "Read Less" hides its wrapper too', c1.querySelector('.srm-toggle-less').parentElement.hidden === true);
 	check('1. collapsed elements keep their original tag',
 		Array.prototype.every.call(c1.querySelectorAll('.srm-hide-el'), function (el) { return el.tagName === 'P'; }));
 
@@ -136,10 +143,14 @@ window.addEventListener('DOMContentLoaded', function () {
 	check('5. after click: inert removed', !c5host.hasAttribute('inert'));
 	check('5. after click: aria-expanded=true', c5more.getAttribute('aria-expanded') === 'true');
 	check('5. after click: More hidden, Less shown', c5more.hidden === true && c5less.hidden === false);
+	check('5. after click: wrappers follow their links',
+		c5more.parentElement.hidden === true && c5less.parentElement.hidden === false);
 	c5less.click();
 	check('5. after collapse: section closed', !c5host.classList.contains('srm-is-open'));
 	check('5. after collapse: inert restored', c5host.hasAttribute('inert'));
 	check('5. after collapse: More shown, Less hidden', c5more.hidden === false && c5less.hidden === true);
+	check('5. after collapse: wrappers follow their links',
+		c5more.parentElement.hidden === false && c5less.parentElement.hidden === true);
 
 	// --- Global ---
 	var ids = qa('.srm-hide-el').map(function (el) { return el.id; });
