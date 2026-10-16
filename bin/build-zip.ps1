@@ -66,10 +66,33 @@ foreach ($forbidden in @('.git', 'node_modules', 'vendor')) {
 }
 
 $ZipPath = Join-Path $BuildDir "$Slug-$Version.zip"
-Compress-Archive -Path $StageDir -DestinationPath $ZipPath -Force
+
+# Not Compress-Archive: in Windows PowerShell 5.1 it writes entry names
+# with backslashes ("simple-read-more\assets\..."). The zip format
+# requires forward slashes, and unzip tools on Linux, which is where
+# WordPress.org and most hosts run, treat a backslash as part of the
+# file name, so the plugin could unpack as a few oddly named files
+# instead of folders. Each file is added by hand under a forward-slash
+# name instead.
+Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+$zipStream = [System.IO.File]::Open($ZipPath, [System.IO.FileMode]::Create)
+$zip = New-Object System.IO.Compression.ZipArchive($zipStream, [System.IO.Compression.ZipArchiveMode]::Create)
+try {
+	Get-ChildItem -Path $StageDir -Recurse -File | Sort-Object FullName | ForEach-Object {
+		$relative  = $_.FullName.Substring($StageDir.Length + 1).Replace('\', '/')
+		$entryName = "$Slug/$relative"
+		[void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
+			$zip, $_.FullName, $entryName, [System.IO.Compression.CompressionLevel]::Optimal
+		)
+	}
+} finally {
+	$zip.Dispose()
+	$zipStream.Dispose()
+}
 
 Write-Host "Created build\$Slug-$Version.zip"
-Add-Type -AssemblyName System.IO.Compression.FileSystem
 $archive = [System.IO.Compression.ZipFile]::OpenRead($ZipPath)
 try {
 	$archive.Entries | ForEach-Object { Write-Host ("  {0,8}  {1}" -f $_.Length, $_.FullName) }
