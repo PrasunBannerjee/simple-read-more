@@ -123,6 +123,12 @@ Yes. If the animation ever stops working after you install one, exclude this plu
 
 No. It makes no external requests, sets no cookies, and writes nothing to the database.
 
+== Screenshots ==
+
+1. A page with the rest of its content collapsed behind a "Read More" link, styled by the theme like any other link.
+2. The same page expanded. The "Read Less" link sits at the end of the revealed text, and the list keeps its bullets.
+3. The `[readmore]` marker typed on its own line in the block editor. That's the whole setup.
+
 == Changelog ==
 
 = 1.0.0 =

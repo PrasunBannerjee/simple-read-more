@@ -52,19 +52,19 @@ edge case this doesn't cover). **Worth a look** at
 
 | File | Notes |
 | --- | --- |
-| `screenshot-1.png` | Matches the first entry under `== Screenshots ==` in `readme.txt`. |
-| `screenshot-2.png` | Matches the second entry, and so on. |
+| `assets/screenshot-1.png` | Front end, collapsed: the "Read More" link with the rest of the content hidden. |
+| `assets/screenshot-2.png` | Front end, expanded: "Read Less" at the end of the revealed text. |
+| `assets/screenshot-3.png` | The `[readmore]` marker on its own line in the block editor. |
 
-**Not done yet.** The `== Screenshots ==` section was removed from
-`readme.txt` for the 1.0.0 submission, because captions with no matching
-image render as a broken gallery. When the screenshots exist, add the
-section back with one line per image, in order, and commit the files
-alongside. Captions come from `readme.txt`, so the numbering has to line
-up exactly. Suggested set:
+**Done.** Each file matches, in order, a caption under
+`== Screenshots ==` in `readme.txt`. The directory takes the captions
+from there, so if you add, remove, or reorder an image, update that
+section to match; a caption with no image shows up as a broken gallery.
 
-1. A "Read More" link in place, with the rest of the content collapsed.
-2. The same section expanded, with the "Read Less" link at the end of the revealed text.
-3. The `[readmore]` marker typed into the editor.
+All three were taken at 1280px wide (saved at 1.25x, so 1600px) from
+a stock WordPress install running Twenty Twenty-Five, with the plugin
+loaded from this repository. The demo page is a made-up community
+garden, so no real site or brand appears in them.
 
 ## Live Preview blueprint
 
