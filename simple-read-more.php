@@ -64,9 +64,15 @@ require_once SIMPLE_READ_MORE_PATH . 'includes/class-simple-read-more-assets.php
 /**
  * Boot the plugin.
  *
- * Runs on `plugins_loaded` so any theme or plugin that wants to
- * redefine the label constants, or hook the label filter, has already
- * had a chance to load.
+ * Runs on `plugins_loaded`, the usual point for a plugin to register
+ * its hooks once every plugin has loaded.
+ *
+ * This timing does not affect the labels. The label constants are
+ * fixed when this file is read, near the top, before `plugins_loaded`
+ * fires and before any theme loads, so they can only be set ahead of
+ * that, in wp-config.php. The `simple_read_more_labels` filter is
+ * applied much later, when the assets are enqueued, so a theme or
+ * plugin can add it at any point before then.
  *
  * @since 1.0.0
  *
