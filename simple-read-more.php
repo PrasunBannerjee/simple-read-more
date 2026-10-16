@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Simple Read More
  * Plugin URI:        https://github.com/PrasunBannerjee/simple-read-more
- * Description:       Adds a [readmore] shortcode, and a matching HTML marker, that splits any content into a visible part and a collapsible "Read More / Read Less" part. No settings, no dependencies.
+ * Description:       Adds a [readmore] shortcode that splits content into a visible part and a collapsible Read More / Read Less part.
  * Version:           1.0.0
  * Requires at least: 5.8
  * Requires PHP:      7.2

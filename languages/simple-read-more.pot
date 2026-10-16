@@ -23,7 +23,7 @@ msgid "https://github.com/PrasunBannerjee/simple-read-more"
 msgstr ""
 
 #. Description of the plugin
-msgid "Adds a [readmore] shortcode, and a matching HTML marker, that splits any content into a visible part and a collapsible \"Read More / Read Less\" part. No settings, no dependencies."
+msgid "Adds a [readmore] shortcode that splits content into a visible part and a collapsible Read More / Read Less part."
 msgstr ""
 
 #. Author of the plugin
