@@ -9,13 +9,17 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-13T00:00:00+00:00\n"
+"POT-Creation-Date: 2026-10-16T00:00:00+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: simple-read-more\n"
 
 #. Plugin Name of the plugin
 msgid "Simple Read More"
+msgstr ""
+
+#. Plugin URI of the plugin
+msgid "https://github.com/PrasunBannerjee/simple-read-more"
 msgstr ""
 
 #. Description of the plugin
@@ -26,10 +30,14 @@ msgstr ""
 msgid "Prasun Bannerjee"
 msgstr ""
 
-#: includes/class-simple-read-more-assets.php:175
+#. Author URI of the plugin
+msgid "https://ticktechtoe.in"
+msgstr ""
+
+#: includes/class-simple-read-more-assets.php:269
 msgid "Read More"
 msgstr ""
 
-#: includes/class-simple-read-more-assets.php:178
+#: includes/class-simple-read-more-assets.php:272
 msgid "Read Less"
 msgstr ""

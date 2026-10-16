@@ -1,5 +1,5 @@
 === Simple Read More ===
-Contributors: PrasunBannerjee
+Contributors: prasunbannerjee
 Tags: read more, read less, expand, collapse, shortcode
 Requires at least: 5.8
 Tested up to: 7.1
