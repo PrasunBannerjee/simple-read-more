@@ -63,6 +63,19 @@
 	</div>
 </div>
 
+<div class="case" id="case-widget">
+	<h2>7. Bare text in a page-builder widget, button widget after it</h2>
+	<div class="builder-container">
+		<div class="widget-text" data-id="abc123">Visible bare text.<br><span class="srm-marker"></span><br>Hidden bare text, <strong>still hidden</strong>.</div>
+		<div class="widget-button"><a href="#">Explore your stay</a></div>
+	</div>
+</div>
+
+<div class="case" id="case-linebreaks">
+	<h2>8. Marker between line breaks inside one paragraph</h2>
+	<p>Visible line.<br><span class="srm-marker"></span><br>Hidden line.</p>
+</div>
+
 <script>
 	// Mirrors what PHP prints before the script file.
 	window.simpleReadMoreConfig = { labelMore: 'Read More', labelLess: 'Read Less' };
@@ -176,6 +189,30 @@ window.addEventListener('DOMContentLoaded', function () {
 	check('6. toggles sit inside the container, around the hidden paragraphs',
 		c6layout.children[1].classList.contains('srm-toggle-wrap') &&
 		c6hidden[1].nextElementSibling === c6layout.querySelector('.srm-toggle-less').parentElement);
+
+	// --- Case 7: page-builder widget ---
+	var c7 = q('#case-widget');
+	var c7widgets = c7.querySelectorAll('.widget-text');
+	check('7. text widget is NOT duplicated', c7widgets.length === 1, 'got ' + c7widgets.length);
+	var c7widget = c7widgets[0];
+	var c7button = c7.querySelector('.widget-button');
+	check('7. button widget after it is NOT hidden', !c7button.closest('.srm-hide-el') && !c7button.classList.contains('srm-hide-el'));
+	check('7. both toggles stay inside the text widget',
+		c7widget.querySelectorAll('.srm-toggle').length === 2 && c7.querySelectorAll('.srm-toggle').length === 2);
+	var c7hidden = c7widget.querySelectorAll('.srm-hide-el');
+	check('7. trailing bare text collapsed as one block inside the widget',
+		c7hidden.length === 1 && c7hidden[0].parentElement === c7widget &&
+		c7hidden[0].textContent.trim() === 'Hidden bare text, still hidden.', JSON.stringify(c7hidden[0] && c7hidden[0].textContent));
+	check('7. visible text stays outside the collapsed block', c7widget.firstChild.nodeType === 3 && c7widget.firstChild.nodeValue === 'Visible bare text.');
+	check('7. revealed text does not open with an empty line',
+		c7hidden[0].querySelector('.srm-hide-el-inner').firstChild.nodeName !== 'BR');
+
+	// --- Case 8: line breaks in one paragraph ---
+	var c8 = q('#case-linebreaks');
+	var c8twin = c8.querySelector('p.srm-hide-el');
+	check('8. paragraph split, twin holds the hidden line', !!c8twin && c8twin.textContent.trim() === 'Hidden line.');
+	check('8. revealed line does not open with an empty line',
+		c8twin && c8twin.querySelector('.srm-hide-el-inner').firstChild.nodeName !== 'BR');
 
 	// --- Global ---
 	var ids = qa('.srm-hide-el').map(function (el) { return el.id; });

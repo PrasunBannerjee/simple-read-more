@@ -48,6 +48,12 @@
 	// and table layout correctly.
 	var SRM_STRUCTURAL_TAGS = [ 'UL', 'OL', 'TABLE' ];
 
+	// Paragraph-like elements: a marker inside one of these splits that
+	// element in two. A marker directly inside anything else that is
+	// block-level (a div, a page-builder widget, a table cell) stays
+	// inside it; see srmSetupMarker().
+	var SRM_TEXT_BLOCK_TAGS = [ 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'LI', 'DT', 'DD', 'PRE', 'ADDRESS', 'FIGCAPTION' ];
+
 	function srmInit() {
 		var markers = document.querySelectorAll( '.srm-marker' );
 		if ( ! markers.length ) {
@@ -64,25 +70,37 @@
 		}
 		marker.dataset.srmDone = '1';
 
-		// A marker pasted as raw HTML (a Custom HTML block, for example)
-		// is not wrapped in a paragraph: it sits directly among the
-		// block elements of a content container. Treating its parent as
-		// "the paragraph holding the marker" would then split that whole
-		// container, duplicating it and pulling the hidden content one
-		// level out of the theme's layout. So in that case the marker
-		// itself is the split point, and the elements after it are
-		// collapsed where they already stand.
-		var isBareMarker = srmHasBlockSibling( marker );
-
-		var anchorEl = isBareMarker ? marker : marker.parentElement; // e.g. the <p> containing the marker
-		if ( ! anchorEl || ! anchorEl.parentElement ) {
+		var parentEl = marker.parentElement;
+		if ( ! parentEl || ! parentEl.parentElement ) {
 			return;
 		}
+
+		// Usually the marker sits inside a paragraph (or heading, list
+		// item, etc.). That element is split at the marker and the
+		// paragraphs after it are hidden, all within the paragraph's
+		// own parent.
+		//
+		// Sometimes, though, the marker sits directly inside a
+		// structural box instead: a Custom HTML block puts it straight
+		// into the post content container, and a page builder's text
+		// widget can hold bare text with no paragraph around it at all.
+		// Treating that box as "the paragraph" would split the box
+		// itself, duplicating it, and hide whatever follows it, such as
+		// a button widget in the same page-builder container. So in that
+		// case nothing outside the box is touched: the marker itself is
+		// the split point, and everything after it inside the box is
+		// collapsed where it stands.
+		var isInBox = SRM_TEXT_BLOCK_TAGS.indexOf( parentEl.tagName ) === -1 &&
+			window.getComputedStyle( parentEl ).display.indexOf( 'inline' ) !== 0;
+
+		var anchorEl = isInBox ? marker : parentEl;
 		var containerEl = anchorEl.parentElement; // the shared parent we work within
 
 		var hostSourceEls = [];
 
-		if ( ! isBareMarker ) {
+		if ( isInBox ) {
+			srmWrapTrailingText( marker );
+		} else {
 			srmSplitAnchor( marker, anchorEl, containerEl, hostSourceEls );
 		}
 
@@ -108,21 +126,66 @@
 		marker.remove();
 	}
 
-	// True when the marker shares its parent with at least one
-	// block-level element, meaning the parent is a content container
-	// rather than a paragraph-like element the marker sits inside.
-	function srmHasBlockSibling( marker ) {
+	// For a marker sitting directly in a box: gathers each run of bare
+	// text and inline elements after the marker into its own <div>, in
+	// place, so that run can collapse like any other block. Block
+	// elements after the marker are left as they are. A <div> is used
+	// because it inherits the box's text styling and, like a paragraph
+	// would, lines up with the box's other blocks.
+	function srmWrapTrailingText( marker ) {
 		var parentEl = marker.parentElement;
-		if ( ! parentEl ) {
+		var runEl = null;
+
+		srmDropLeadingBreak( marker );
+		var node = marker.nextSibling;
+
+		while ( node ) {
+			var nextNode = node.nextSibling;
+			if ( srmIsInlineNode( node ) ) {
+				if ( ! runEl ) {
+					if ( node.nodeType === 3 && ! node.nodeValue.trim() ) {
+						// Whitespace between blocks; leave it where it is.
+						node = nextNode;
+						continue;
+					}
+					runEl = document.createElement( 'div' );
+					parentEl.insertBefore( runEl, node );
+				}
+				runEl.appendChild( node );
+			} else {
+				runEl = null;
+			}
+			node = nextNode;
+		}
+	}
+
+	// True for text, and for elements that are laid out inline.
+	function srmIsInlineNode( node ) {
+		if ( node.nodeType === 3 ) {
+			return true;
+		}
+		if ( node.nodeType !== 1 ) {
 			return false;
 		}
-		return Array.prototype.some.call( parentEl.children, function ( el ) {
-			if ( el === marker ) {
-				return false;
+		var display = window.getComputedStyle( node ).display;
+		return display.indexOf( 'inline' ) === 0 || display === 'none' || display === 'contents';
+	}
+
+	// The line break right after a marker typed on its own line ends
+	// the marker's line, not the hidden text's. Left in place it would
+	// open the revealed text with an empty line, so it is dropped,
+	// along with any whitespace before it.
+	function srmDropLeadingBreak( marker ) {
+		var node = marker.nextSibling;
+		while ( node && node.nodeType === 3 && ! node.nodeValue.trim() ) {
+			node = node.nextSibling;
+		}
+		if ( node && node.nodeType === 1 && node.tagName === 'BR' ) {
+			while ( marker.nextSibling !== node ) {
+				marker.nextSibling.remove();
 			}
-			var display = window.getComputedStyle( el ).display;
-			return display !== 'none' && display !== 'contents' && display.indexOf( 'inline' ) !== 0;
-		} );
+			node.remove();
+		}
 	}
 
 	// Splits the element holding the marker, as described below, and
@@ -139,6 +202,7 @@
 		// whether that CSS targets it by class or by its position in
 		// the page; no styling is copied or guessed, only the real
 		// attributes that were already there.
+		srmDropLeadingBreak( marker );
 		var trailingInlineNodes = [];
 		var node = marker.nextSibling;
 		while ( node ) {

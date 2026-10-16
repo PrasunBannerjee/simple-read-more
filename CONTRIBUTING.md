@@ -51,7 +51,7 @@ if you are touching plugin headers, escaping, or enqueues.
 ## Tests
 
 There is a browser-based DOM test harness at `tests/manual/index.html`. It
-exercises the real `assets/css` and `assets/js` files and asserts 41
+exercises the real `assets/css` and `assets/js` files and asserts 49
 properties of the resulting DOM: which elements get collapsed, that the
 twin element in a mid-sentence split copies attributes but not the id,
 that list and table children stay direct children, that `inert` is added
