@@ -64,12 +64,70 @@
 		}
 		marker.dataset.srmDone = '1';
 
-		var anchorEl = marker.parentElement; // e.g. the <p> containing the marker
+		// A marker pasted as raw HTML (a Custom HTML block, for example)
+		// is not wrapped in a paragraph: it sits directly among the
+		// block elements of a content container. Treating its parent as
+		// "the paragraph holding the marker" would then split that whole
+		// container, duplicating it and pulling the hidden content one
+		// level out of the theme's layout. So in that case the marker
+		// itself is the split point, and the elements after it are
+		// collapsed where they already stand.
+		var isBareMarker = srmHasBlockSibling( marker );
+
+		var anchorEl = isBareMarker ? marker : marker.parentElement; // e.g. the <p> containing the marker
 		if ( ! anchorEl || ! anchorEl.parentElement ) {
 			return;
 		}
 		var containerEl = anchorEl.parentElement; // the shared parent we work within
 
+		var hostSourceEls = [];
+
+		if ( ! isBareMarker ) {
+			srmSplitAnchor( marker, anchorEl, containerEl, hostSourceEls );
+		}
+
+		// Anything that already followed the anchor element (or, if a
+		// twin element was just split off, anything that follows THAT)
+		// also becomes hidden content. Collected up front, before any
+		// further DOM changes, so this traversal can never be thrown
+		// off by mutations made later in this same setup.
+		var afterEl = hostSourceEls.length ? hostSourceEls[ hostSourceEls.length - 1 ] : anchorEl;
+		var sib = afterEl.nextElementSibling;
+		while ( sib ) {
+			hostSourceEls.push( sib );
+			sib = sib.nextElementSibling;
+		}
+
+		if ( ! hostSourceEls.length ) {
+			// Nothing to hide, so no toggle is added at all.
+			marker.remove();
+			return;
+		}
+
+		srmSetupToggles( anchorEl, containerEl, hostSourceEls );
+		marker.remove();
+	}
+
+	// True when the marker shares its parent with at least one
+	// block-level element, meaning the parent is a content container
+	// rather than a paragraph-like element the marker sits inside.
+	function srmHasBlockSibling( marker ) {
+		var parentEl = marker.parentElement;
+		if ( ! parentEl ) {
+			return false;
+		}
+		return Array.prototype.some.call( parentEl.children, function ( el ) {
+			if ( el === marker ) {
+				return false;
+			}
+			var display = window.getComputedStyle( el ).display;
+			return display !== 'none' && display !== 'contents' && display.indexOf( 'inline' ) !== 0;
+		} );
+	}
+
+	// Splits the element holding the marker, as described below, and
+	// adds the twin (if any) to hostSourceEls.
+	function srmSplitAnchor( marker, anchorEl, containerEl, hostSourceEls ) {
 		// If the marker sits in the middle of a paragraph (or heading,
 		// list item, etc.) rather than alone on its own line, split
 		// that element into two at the marker: the original element
@@ -88,8 +146,6 @@
 			node = node.nextSibling;
 		}
 		marker.remove();
-
-		var hostSourceEls = [];
 
 		if ( trailingInlineNodes.length ) {
 			var splitEl = document.createElement( anchorEl.tagName );
@@ -116,24 +172,12 @@
 		if ( ! anchorEl.childNodes.length ) {
 			anchorEl.classList.add( 'srm-anchor-empty' );
 		}
+	}
 
-		// Anything that already followed the anchor element (or, if a
-		// twin element was just split off above, anything that follows
-		// THAT) also becomes hidden content. Collected up front, before
-		// any further DOM changes, so this traversal can never be
-		// thrown off by mutations made later in this same setup.
-		var afterEl = hostSourceEls.length ? hostSourceEls[ hostSourceEls.length - 1 ] : anchorEl;
-		var sib = afterEl.nextElementSibling;
-		while ( sib ) {
-			hostSourceEls.push( sib );
-			sib = sib.nextElementSibling;
-		}
-
-		if ( ! hostSourceEls.length ) {
-			// Nothing to hide, so no toggle is added at all.
-			return;
-		}
-
+	// Collapses every element in hostSourceEls and adds the two toggles:
+	// "Read More" right after anchorEl, "Read Less" after the last
+	// collapsed element.
+	function srmSetupToggles( anchorEl, containerEl, hostSourceEls ) {
 		srmInstanceCount += 1;
 		var idBase = 'srm-collapse-' + srmInstanceCount;
 

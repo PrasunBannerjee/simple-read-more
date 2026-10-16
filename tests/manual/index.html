@@ -53,6 +53,16 @@
 	<p><a id="buried-link" href="https://example.com">A link that must not be tabbable while collapsed</a></p>
 </div>
 
+<div class="case" id="case-bare">
+	<h2>6. Bare marker among block elements (Custom HTML block)</h2>
+	<div class="layout" data-keep="yes">
+		<p>Visible.</p>
+		<span class="srm-marker"></span>
+		<p>Hidden one.</p>
+		<p>Hidden two.</p>
+	</div>
+</div>
+
 <script>
 	// Mirrors what PHP prints before the script file.
 	window.simpleReadMoreConfig = { labelMore: 'Read More', labelLess: 'Read Less' };
@@ -151,6 +161,21 @@ window.addEventListener('DOMContentLoaded', function () {
 	check('5. after collapse: More shown, Less hidden', c5more.hidden === false && c5less.hidden === true);
 	check('5. after collapse: wrappers follow their links',
 		c5more.parentElement.hidden === false && c5less.parentElement.hidden === true);
+
+	// --- Case 6: bare marker ---
+	var c6 = q('#case-bare');
+	var c6layouts = c6.querySelectorAll('.layout');
+	check('6. container is NOT split or duplicated', c6layouts.length === 1, 'got ' + c6layouts.length);
+	var c6layout = c6layouts[0];
+	var c6hidden = c6layout.querySelectorAll('.srm-hide-el');
+	check('6. both following paragraphs collapsed in place, as direct children',
+		c6hidden.length === 2 && Array.prototype.every.call(c6hidden, function (el) { return el.parentElement === c6layout && el.tagName === 'P'; }),
+		'got ' + c6hidden.length);
+	check('6. paragraph before the marker stays visible', !c6layout.children[0].classList.contains('srm-hide-el'));
+	check('6. marker removed', c6.querySelectorAll('.srm-marker').length === 0);
+	check('6. toggles sit inside the container, around the hidden paragraphs',
+		c6layout.children[1].classList.contains('srm-toggle-wrap') &&
+		c6hidden[1].nextElementSibling === c6layout.querySelector('.srm-toggle-less').parentElement);
 
 	// --- Global ---
 	var ids = qa('.srm-hide-el').map(function (el) { return el.id; });
