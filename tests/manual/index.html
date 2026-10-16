@@ -83,6 +83,36 @@
 	<p tabindex="0">Hidden, but deliberately focusable by its author.</p>
 </div>
 
+<div class="case" id="case-inline-block">
+	<h2>10. Bare text in an inline-block widget, button widget after it</h2>
+	<div class="builder-container">
+		<div class="widget-text" style="display: inline-block">Visible bare text.<span class="srm-marker"></span>Hidden bare text.</div>
+		<div class="widget-button"><a href="#">Button</a></div>
+	</div>
+</div>
+
+<div class="case" id="case-inline-flex">
+	<h2>11. Bare text in an inline-flex widget, another widget after it</h2>
+	<div class="builder-container">
+		<div class="widget-text" style="display: inline-flex">Visible bare text.<span class="srm-marker"></span>Hidden bare text.</div>
+		<div class="widget-other"><p>Another widget.</p></div>
+	</div>
+</div>
+
+<div class="case" id="case-flex">
+	<h2>12. Bare text in a flex widget, button widget after it</h2>
+	<div class="builder-container">
+		<div class="widget-text" style="display: flex">Visible bare text.<span class="srm-marker"></span>Hidden bare text.</div>
+		<div class="widget-button"><a href="#">Button</a></div>
+	</div>
+</div>
+
+<div class="case" id="case-inline-parent">
+	<h2>13. Marker inside an inline element within a paragraph</h2>
+	<p>Visible <strong>bold<span class="srm-marker"></span> hidden bold</strong> text.</p>
+	<p>Following paragraph.</p>
+</div>
+
 <script>
 	// Mirrors what PHP prints before the script file.
 	window.simpleReadMoreConfig = { labelMore: 'Read More', labelLess: 'Read Less' };
@@ -232,6 +262,33 @@ window.addEventListener('DOMContentLoaded', function () {
 	// --- Case 9: existing tabindex ---
 	check('9. an element\'s own tabindex is not overwritten',
 		q('#case-own-tabindex .srm-hide-el').getAttribute('tabindex') === '0');
+
+	// --- Cases 10-12: inline-level and flex boxes are boxes, not text ---
+	[
+		[ '10', '#case-inline-block', 'inline-block', '.widget-button' ],
+		[ '11', '#case-inline-flex', 'inline-flex', '.widget-other' ],
+		[ '12', '#case-flex', 'flex', '.widget-button' ]
+	].forEach(function (c) {
+		var box = q(c[1]);
+		var widgets = box.querySelectorAll('.widget-text');
+		var next = box.querySelector(c[3]);
+		check(c[0] + '. ' + c[2] + ' widget is NOT duplicated', widgets.length === 1, 'got ' + widgets.length);
+		check(c[0] + '. widget after the ' + c[2] + ' one is NOT hidden',
+			!next.closest('.srm-hide-el') && !next.classList.contains('srm-hide-el'));
+		check(c[0] + '. both toggles stay inside the ' + c[2] + ' widget',
+			widgets[0].querySelectorAll('.srm-toggle').length === 2 && box.querySelectorAll('.srm-toggle').length === 2);
+		var hidden = widgets[0].querySelectorAll('.srm-hide-el');
+		check(c[0] + '. hidden text collapsed inside the ' + c[2] + ' widget',
+			hidden.length === 1 && hidden[0].textContent.trim() === 'Hidden bare text.',
+			JSON.stringify(hidden[0] && hidden[0].textContent));
+	});
+
+	// --- Case 13: a plain inline parent is still split at the marker ---
+	var c13 = q('#case-inline-parent');
+	var c13strong = c13.querySelectorAll('strong');
+	check('13. inline parent split at the marker, hidden half collapsed',
+		c13strong.length === 2 && c13strong[1].classList.contains('srm-hide-el') &&
+		c13strong[1].textContent.trim() === 'hidden bold', 'got ' + c13strong.length + ' <strong>');
 
 	var ids = qa('.srm-hide-el').map(function (el) { return el.id; });
 	check('global: every collapse host has an id', ids.every(Boolean));

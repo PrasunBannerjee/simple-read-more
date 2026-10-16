@@ -95,8 +95,16 @@
 		// case nothing outside the box is touched: the marker itself is
 		// the split point, and everything after it inside the box is
 		// collapsed where it stands.
+		//
+		// Only a parent that is plain inline text (display: inline, such
+		// as a <strong> or <span>) counts as "not a box". inline-block,
+		// inline-flex, inline-grid, and inline-table also start with
+		// "inline", but each of those is a box of its own that merely
+		// sits in a line, which is how page builders often lay out a
+		// widget next to the one after it. Treating those as text would
+		// split the widget in two and hide the widgets that follow it.
 		var isInBox = SRM_TEXT_BLOCK_TAGS.indexOf( parentEl.tagName ) === -1 &&
-			window.getComputedStyle( parentEl ).display.indexOf( 'inline' ) !== 0;
+			window.getComputedStyle( parentEl ).display !== 'inline';
 
 		var anchorEl = isInBox ? marker : parentEl;
 		var containerEl = anchorEl.parentElement; // the shared parent we work within
