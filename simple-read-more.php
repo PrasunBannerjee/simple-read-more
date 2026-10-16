@@ -7,7 +7,7 @@
  * Requires at least: 5.8
  * Requires PHP:      7.2
  * Author:            Prasun Bannerjee
- * Author URI:        https://github.com/PrasunBannerjee
+ * Author URI:        https://ticktechtoe.in
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       simple-read-more
