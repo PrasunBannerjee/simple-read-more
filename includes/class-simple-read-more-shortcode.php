@@ -70,6 +70,10 @@ final class Simple_Read_More_Shortcode {
 	public static function render( $atts = array(), $content = null ) {
 		unset( $atts, $content );
 
+		// The assets load only on views that use the plugin, and this
+		// is the most reliable signal that this one does.
+		Simple_Read_More_Assets::request();
+
 		return '<span class="' . esc_attr( self::MARKER_CLASS ) . '" aria-hidden="true"></span>';
 	}
 }

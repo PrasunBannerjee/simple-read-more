@@ -53,11 +53,21 @@ add_filter( 'simple_read_more_labels', function ( $labels ) {
 	return $labels;
 } );
 
-// Skip loading the CSS and JS where the plugin is not used.
-add_filter( 'simple_read_more_enqueue_assets', function ( $enqueue ) {
-	return is_singular( 'post' );
-} );
+// Load the CSS and JS on every page, for a marker pasted somewhere
+// the plugin cannot see it (see "Where it loads" below).
+add_filter( 'simple_read_more_load_everywhere', '__return_true' );
 ```
+
+### Where it loads
+
+The CSS and JS load only on pages that use the plugin. The shortcode
+requests them when it renders, so any editor or page builder that runs
+shortcodes is covered. A hand-pasted `srm-marker` span runs no plugin
+code, so the rendered output of post content, blocks (including block
+templates and block widgets), classic text widgets, and Elementor
+widgets is checked for it instead. A marker anywhere else, such as a
+raw HTML field in another page builder, needs the
+`simple_read_more_load_everywhere` filter above.
 
 The constants `SIMPLE_READ_MORE_LABEL_MORE` and `SIMPLE_READ_MORE_LABEL_LESS` can also be defined in `wp-config.php`.
 

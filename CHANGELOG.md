@@ -32,7 +32,9 @@ Initial release.
 - Labels are changeable via the `simple_read_more_labels` filter or the
   `SIMPLE_READ_MORE_LABEL_MORE` / `SIMPLE_READ_MORE_LABEL_LESS`
   constants.
-- `simple_read_more_enqueue_assets` filter for skipping the CSS and JS.
+- The CSS and JS load only on pages that use the shortcode or a marker
+  the plugin can detect, with a `simple_read_more_load_everywhere`
+  filter to load them on every page instead.
 - Translation-ready, with a `.pot` under `languages/`.
 - Stores nothing: no options, tables, post meta, cron events, or
   transients, and no external requests.

@@ -22,7 +22,7 @@ This is built for the site owner who wants things to simply work — not for any
 
 = What "lightweight" actually means here =
 
-No database writes. No admin page. No external requests. No JavaScript library, no build step, no dependencies of any kind. The plugin does not create an options row, a database table, a cron event, or a single byte of stored data — activating it is the entire installation, and deactivating it leaves nothing behind.
+No database writes. No admin page. No external requests. The CSS and JS load only on pages that actually use the plugin, so every other page carries nothing extra. No JavaScript library, no build step, no dependencies of any kind. The plugin does not create an options row, a database table, a cron event, or a single byte of stored data — activating it is the entire installation, and deactivating it leaves nothing behind.
 
 = Why it does not break your layout =
 
@@ -54,7 +54,7 @@ The one thing worth changing — the link wording — lives in a filter rather t
 	return $labels;
 } );`
 
-A second filter, `simple_read_more_enqueue_assets`, returns false to skip loading the CSS and JS on pages that don't need it.
+A second filter, `simple_read_more_load_everywhere`, loads the CSS and JS on every page. You'll only need it if you paste the marker span somewhere the plugin can't see it; see the FAQ below.
 
 Development happens in the open at [github.com/PrasunBannerjee/simple-read-more](https://github.com/PrasunBannerjee/simple-read-more).
 
@@ -114,6 +114,14 @@ Target the same class from Additional CSS:
 `.srm-hide-el {
 	transition: grid-template-rows 0.6s ease-in-out;
 }`
+
+= I pasted the marker span and nothing collapses =
+
+The plugin loads its CSS and JS only on pages that use it. It spots the shortcode anywhere, and the pasted span in post content, blocks, widgets, and Elementor, but not inside every page builder's raw HTML field. If yours is one it can't see, add this to your child theme's `functions.php` to load the files on every page:
+
+`add_filter( 'simple_read_more_load_everywhere', '__return_true' );`
+
+Nothing breaks in the meantime: the content simply stays fully visible.
 
 = Does it work with caching and minification plugins? =
 

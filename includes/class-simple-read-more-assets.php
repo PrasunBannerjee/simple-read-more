@@ -73,54 +73,135 @@ final class Simple_Read_More_Assets {
 	const HANDLE = 'simple-read-more';
 
 	/**
-	 * Hook the enqueue callback.
+	 * Whether something on the current page has asked for the assets.
+	 *
+	 * @since 1.0.0
+	 * @var bool
+	 */
+	private static $is_needed = false;
+
+	/**
+	 * Hook the asset loading and the marker detection.
+	 *
+	 * The CSS and JS load only on views that actually use the plugin,
+	 * never site wide. Two things count as use:
+	 *
+	 * 1. The [readmore] shortcode rendering. The shortcode calls
+	 *    {@see Simple_Read_More_Assets::request()} itself, so this
+	 *    works wherever shortcodes run, including page builders that
+	 *    keep their content in post meta rather than post_content.
+	 *    That is also why detection happens while content renders,
+	 *    rather than by inspecting post_content up front with
+	 *    has_shortcode(), which misses builder pages.
+	 * 2. A hand-pasted `srm-marker` span, which runs no plugin code of
+	 *    its own. A plain substring check on the rendered output of the
+	 *    usual places such a span ends up catches it: post content,
+	 *    blocks (which also covers block templates and block widgets),
+	 *    classic text widgets, and Elementor widgets. The check is a
+	 *    single strpos() per call, and those filters already run
+	 *    whether or not this plugin is active.
+	 *
+	 * Anywhere else, a site can load the assets on every view with the
+	 * `simple_read_more_load_everywhere` filter.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
 	public static function register() {
-		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue' ) );
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'maybe_enqueue' ) );
+
+		add_filter( 'the_content', array( __CLASS__, 'detect_marker' ), 20 );
+		add_filter( 'render_block', array( __CLASS__, 'detect_marker' ), 20 );
+		add_filter( 'widget_text', array( __CLASS__, 'detect_marker' ), 20 );
+		add_filter( 'elementor/widget/render_content', array( __CLASS__, 'detect_marker' ), 20 );
 	}
 
 	/**
-	 * Enqueue the CSS and JS on the front end.
+	 * Ask for the assets on the current page.
 	 *
-	 * Note on why this loads on every front-end view rather than
-	 * conditionally: page builders commonly store their page content
-	 * in post meta rather than in the normal post_content field, so a
-	 * has_shortcode() check against get_the_content() does not
-	 * reliably detect usage on builder-built pages. Since the combined
-	 * CSS+JS footprint here is only a few KB with zero external
-	 * requests, loading it site wide on the front end is simpler and
-	 * safer than trying to detect usage, and has no meaningful effect
-	 * on Core Web Vitals.
-	 *
-	 * Sites that would still rather gate it can return false from the
-	 * `simple_read_more_enqueue_assets` filter.
+	 * Safe to call any number of times, and at any point during the
+	 * page. Content can render before `wp_enqueue_scripts` fires
+	 * (block themes render the whole template before wp_head()), in
+	 * which case the request is remembered and honoured when that hook
+	 * runs. If it renders afterwards, the files are enqueued on the
+	 * spot; WordPress prints a stylesheet enqueued that late in the
+	 * footer, which is still before the deferred script runs, because
+	 * a script waits for any stylesheet above it to load.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
-	public static function enqueue() {
+	public static function request() {
 		if ( is_admin() ) {
 			return;
 		}
 
+		self::$is_needed = true;
+
+		if ( did_action( 'wp_enqueue_scripts' ) ) {
+			self::enqueue();
+		}
+	}
+
+	/**
+	 * Request the assets if a piece of rendered output holds a marker.
+	 *
+	 * Hooked as a filter, so it always hands the output back unchanged.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param mixed $content Rendered output.
+	 * @return mixed The same output.
+	 */
+	public static function detect_marker( $content ) {
+		if ( ! self::$is_needed && is_string( $content ) && false !== strpos( $content, Simple_Read_More_Shortcode::MARKER_CLASS ) ) {
+			self::request();
+		}
+
+		return $content;
+	}
+
+	/**
+	 * Enqueue the assets on `wp_enqueue_scripts`, if anything needs them.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
+	public static function maybe_enqueue() {
 		/**
-		 * Filters whether the front-end assets are enqueued at all.
+		 * Filters whether the assets load on every front-end view.
 		 *
-		 * Returning false anywhere the plugin is not in use skips both
-		 * files entirely. Note that the shortcode still renders its
-		 * marker; without the script the marker is simply inert and
-		 * invisible, and all content stays visible.
+		 * By default the CSS and JS load only on views that use the
+		 * shortcode or a marker the plugin can see. Return true to load
+		 * them everywhere instead, for the rare setup where a marker is
+		 * pasted somewhere the plugin cannot see it, such as a raw HTML
+		 * field inside a page builder other than Elementor.
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param bool $enqueue Whether to enqueue. Default true.
+		 * @param bool $load_everywhere Whether to load on every view. Default false.
 		 */
-		if ( ! apply_filters( 'simple_read_more_enqueue_assets', true ) ) {
+		if ( apply_filters( 'simple_read_more_load_everywhere', false ) ) {
+			self::$is_needed = true;
+		}
+
+		if ( self::$is_needed ) {
+			self::enqueue();
+		}
+	}
+
+	/**
+	 * Enqueue the CSS and JS, with the label config ahead of the script.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
+	private static function enqueue() {
+		if ( wp_script_is( self::HANDLE, 'enqueued' ) ) {
 			return;
 		}
 
