@@ -8,6 +8,12 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Every action below is pinned to a full commit SHA, with the release it
+# came from in a trailing comment. A tag such as @v2 can be moved to
+# different code at any time; a SHA cannot. Dependabot
+# (.github/dependabot.yml) opens a pull request when a new release is
+# out, updating the SHA and the comment together.
+
 permissions:
   contents: read
 
@@ -34,10 +40,10 @@ jobs:
         # the current stable release.
         php: [ '7.2', '8.4' ]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
       - name: Set up PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: ${{ matrix.php }}
           coverage: none
@@ -50,10 +56,10 @@ jobs:
     name: WordPress Coding Standards
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
       - name: Set up PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: '8.3'
           coverage: none
@@ -70,10 +76,10 @@ jobs:
     name: WordPress.org Plugin Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
       - name: Set up PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: '8.3'
           coverage: none
@@ -89,6 +95,6 @@ jobs:
       # Runs the same automated checks the WordPress.org review team
       # runs against a submission, so failures surface here first.
       - name: Run Plugin Check
-        uses: wordpress/plugin-check-action@v1
+        uses: wordpress/plugin-check-action@10857da14b6c2246d15402b3e69f777edcf8c12e # v1.1.9
         with:
           build-dir: './build/simple-read-more'
