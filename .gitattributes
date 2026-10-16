@@ -18,3 +18,4 @@
 /composer.json    export-ignore
 /phpcs.xml.dist   export-ignore
 /CONTRIBUTING.md  export-ignore
+/SECURITY.md      export-ignore

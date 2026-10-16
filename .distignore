@@ -27,5 +27,6 @@ phpcs.xml.dist
 phpunit.xml.dist
 
 CONTRIBUTING.md
+SECURITY.md
 README.md
 CHANGELOG.md
