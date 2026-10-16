@@ -34,9 +34,8 @@ image twice — once baked into the pixels, once again as WordPress's own
 overlay — which is exactly what that rule exists to prevent. The
 outlined title path was a single, cleanly separable SVG element, so it
 was removed before rasterizing; everything else (ink ground, mark, the
-full-width strike) is untouched. **Worth a manual check against
-`banner.svg` in the brand kit** before this ships, in case the baked-in
-title was actually intentional and the written rule is what's stale.
+full-width strike) is untouched. **Confirmed:** the banners ship
+without the baked-in title.
 
 **One judgment call on the icon.** WordPress.org doesn't support a
 separate icon for dark mode, only one file, so a choice had to be made
@@ -45,8 +44,8 @@ ink-on-white — that's the version built for light grounds, and the
 Plugins screen and search results are white or light grey in the
 overwhelming majority of real installs, dark admin color schemes
 included (only the directory's own dark mode, which is rarer, is the
-edge case this doesn't cover). **Worth a look** at
-`assets/icon-256x256.png` to confirm that's the right call.
+edge case this doesn't cover). **Confirmed:** the icon ships as the
+ink-on-white mark.
 
 ## Recommended
 
